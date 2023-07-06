@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historian</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+
+	.inconspicuous {
+	    font-size: 12px;
+	    color: #116;
+	    text-decoration: none;
+	}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Historian<span class="inconspicuous"> Web</span></h1>by <a href="https://instagram.com/sage_ind">Sage India</a>
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s3"><a href="#events">Events</a></li>
+                    <li class="tab col s3"><a href="#births">Births</a></li>
+                    <li class="tab col s3"><a href="#holidays">Holidays</a></li>
+                    <li class="tab col s3"><a href="#deaths">Deaths</a></li>
+                </ul>
+            </div>
+            <div id="events" class="col s12"></div>
+            <div id="births" class="col s12"></div>
+            <div id="holidays" class="col s12"></div>
+            <div id="deaths" class="col s12"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var currentDate = new Date();
+            var month = currentDate.toLocaleString('default', { month: 'long' });
+            var day = currentDate.getDate();
+            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=' + month + '_' + day;
+
+            // Initialize tabs
+            $('.tabs').tabs();
+
+            // Fetch content from the API
+            $.ajax({
+                url: url,
+                dataType: 'jsonp',
+                success: function (data) {
+                    var htmlContent = data.parse.text['*'];
+                    var $html = $(htmlContent);
+                    var $eventsSection = $html.find('span[id="Events"]').closest('h2').nextUntil('h2');
+                    var $birthsSection = $html.find('span[id="Births"]').closest('h2').nextUntil('h2');
+                    var $holidaysSection = $html.find('span[id="Holidays_and_observances"]').closest('h2').nextUntil('h2');
+                    var $deathsSection = $html.find('span[id="Deaths"]').closest('h2').nextUntil('h2');
+
+                    // Extract the text from each section
+                    var eventsText = $eventsSection.text();
+                    var birthsText = $birthsSection.text();
+                    var holidaysText = $holidaysSection.text();
+                    var deathsText = $deathsSection.text();
+
+                    // Create lists for each section
+                    var eventsList = eventsText.split('\n').filter(Boolean);
+                    var birthsList = birthsText.split('\n').filter(Boolean);
+                    var holidaysList = holidaysText.split('\n').filter(Boolean);
+                    var deathsList = deathsText.split('\n').filter(Boolean);
+
+                    // Display lists in respective tabs
+                    var eventsHtml = '<ul class="collection">';
+                    eventsList.forEach(function (item) {
+                        eventsHtml += '<li class="collection-item">' + item + '</li>';
+                    });
+                    eventsHtml +='</ul>';
+                    $('#events').html(eventsHtml);
+
+                    var birthsHtml = '<ul class="collection">';
+                    birthsList.forEach(function (item) {
+                        birthsHtml += '<li class="collection-item">' + item + '</li>';
+                    });
+                    birthsHtml += '</ul>';
+                    $('#births').html(birthsHtml);
+
+                    var holidaysHtml = '<ul class="collection">';
+                    holidaysList.forEach(function (item) {
+                        holidaysHtml += '<li class="collection-item">' + item + '</li>';
+                    });
+                    holidaysHtml += '</ul>';
+                    $('#holidays').html(holidaysHtml);
+
+                    var deathsHtml = '<ul class="collection">';
+                    deathsList.forEach(function (item) {
+                        deathsHtml += '<li class="collection-item">' + item + '</li>';
+                    });
+                    deathsHtml += '</ul>';
+                    $('#deaths').html(deathsHtml);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
