@@ -2,17 +2,17 @@
 <html>
 <head>
     <title>Historian</title>
-    <link rel="stylesheet" href="https://bootswatch.com/5/vapor/bootstrap.min.css">
+    <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css">
     <style>
-        .navbar {
+        .navbar .nav-item {
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 1%;
+            font-size: 120%;
         }
 
         body {
             background-color: #190832;
         }
-
+	
         .footer {
             text-align: center;
             font-size: 80%;
@@ -24,12 +24,15 @@
             padding: none;
             text-decoration: none;
         }
+        .btn {
+            margin: 1em;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-dark bg-primary">
         <div class="container">
-            <a style="font-size: 150%;" class="navbar-brand" href="#">Historian<span style="font-size: 70%; opacity: 60%;"> Web</span></a>
+            <a style="font-size: 150%;" class="navbar-brand" href="https://github.com/sageind/HistorianWeb/">Historian<span style="font-size: 70%; opacity: 70%;"> Web</span></a>
             <span style="font-size: 150%;">
                 <script>
                     var currentDate = new Date();
@@ -115,32 +118,36 @@
                     });
 
                     // Display lists in respective tabs
-                    var eventsHtml = '<ul class="list-group">';
-                    eventsList.forEach(function (item) {
-                        eventsHtml += '<li class="list-group-item">' + item + '</li>';
+                    var eventsHtml = '<table class="table">';
+                    eventsList.forEach(function (item, index) {
+                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
+                        eventsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
                     });
-                    eventsHtml += '</ul>';
+                    eventsHtml += '</table>';
                     $('#events').html(eventsHtml);
 
-                    var birthsHtml = '<ul class="list-group">';
-                    birthsList.forEach(function (item) {
-                        birthsHtml += '<li class="list-group-item">' + item + '</li>';
+                    var birthsHtml = '<table class="table">';
+                    birthsList.forEach(function (item, index) {
+                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
+                        birthsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
                     });
-                    birthsHtml += '</ul>';
+                    birthsHtml += '</table>';
                     $('#births').html(birthsHtml);
 
-                    var holidaysHtml = '<ul class="list-group">';
-                    holidaysList.forEach(function (item) {
-                        holidaysHtml += '<li class="list-group-item">' + item + '</li>';
+                    var holidaysHtml = '<table class="table">';
+                    holidaysList.forEach(function (item, index) {
+                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
+                        holidaysHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
                     });
-                    holidaysHtml += '</ul>';
+                    holidaysHtml += '</table>';
                     $('#holidays').html(holidaysHtml);
 
-                    var deathsHtml = '<ul class="list-group">';
-                    deathsList.forEach(function (item) {
-                        deathsHtml += '<li class="list-group-item">' + item + '</li>';
+                    var deathsHtml = '<table class="table">';
+                    deathsList.forEach(function (item, index) {
+                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
+                        deathsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
                     });
-                    deathsHtml += '</ul>';
+                    deathsHtml += '</table>';
                     $('#deaths').html(deathsHtml);
 
                     // Increase font size on button click
@@ -151,6 +158,6 @@
             });
         });
     </script>
-    <button class="increase-font-size btn btn-secondary btn-sm">aA+</button>
+    <button class="increase-font-size btn btn-secondary btn-md">aA+</button>
 </body>
 </html>
