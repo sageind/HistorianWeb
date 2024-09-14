@@ -13,19 +13,32 @@
         body {
             background-color: #190832;
         }
-	
+
         .footer {
             text-align: center;
             font-size: 80%;
             color: #777;
             margin-top: 0.2%;
-	    padding-bottom: 0.6%;
+            padding-bottom: 0.6%;
         }
 
         .footer a {
             padding: none;
             text-decoration: none;
         }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+        
+        .tab-content ul, a{
+            color: #f8f9fa; /* Light gray color */
+        }
+        
+        a {
+            text-decoration: none;
+        }
+        
     </style>
 </head>
 <body>
@@ -66,84 +79,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-
         $(document).ready(function () {
             var currentDate = new Date();
             var month = currentDate.toLocaleString('default', { month: 'long' });
             var day = currentDate.getDate();
-            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=' + month + '_' + day;
+            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=' + month + '_' + day + '&origin=*';
 
-            // Fetch content from the API
             $.ajax({
                 url: url,
-                dataType: 'jsonp',
+                dataType: 'json',
                 success: function (data) {
                     var htmlContent = data.parse.text['*'];
-                    var $html = $(htmlContent);
-                    var $eventsSection = $html.find('span[id="Events"]').closest('h2').nextUntil('h2');
-                    var $birthsSection = $html.find('span[id="Births"]').closest('h2').nextUntil('h2');
-                    var $holidaysSection = $html.find('span[id="Holidays_and_observances"]').closest('h2').nextUntil('h2');
-                    var $deathsSection = $html.find('span[id="Deaths"]').closest('h2').nextUntil('h2');
+                    console.log('Raw HTML Content:', htmlContent); // Log raw HTML content
 
-                    // Extract the text from each section
-                    var eventsText = $eventsSection.text();
-                    var birthsText = $birthsSection.text();
-                    var holidaysText = $holidaysSection.text();
-                    var deathsText = $deathsSection.text();
+                    // Create a temporary DOM element to parse the HTML
+                    var $html = $('<div>').html(htmlContent);
 
-                    // Create lists for each section
-                    var eventsList = eventsText.split('\n').filter(Boolean);
-                    var birthsList = birthsText.split('\n').filter(Boolean);
-                    var holidaysList = holidaysText.split('\n').filter(Boolean);
-                    var deathsList = deathsText.split('\n').filter(Boolean);
+                    // Function to extract <li> elements within each section
+                    function extractListItems(headerClass, startId) {
+                        var listItems = '';
+                        var $header = $html.find('div.mw-heading.mw-heading2:has(h2[id="' + startId + '"])');
 
-                    // Remove square brackets and their contents from each list item
-                    eventsList = eventsList.map(function (item) {
-                        return item.replace(/\[.*?\]/g, ' ');
-                    });
-                    birthsList = birthsList.map(function (item) {
-                        return item.replace(/\[.*?\]/g, ' ');
-                    });
-                    holidaysList = holidaysList.map(function (item) {
-                        return item.replace(/\[.*?\]/g, ' ');
-                    });
-                    deathsList = deathsList.map(function (item) {
-                        return item.replace(/\[.*?\]/g, ' ');
-                    });
+                        if ($header.length === 0) {
+                            console.error('Header with ID "' + startId + '" not found.');
+                            return '';
+                        }
 
-                    // Display lists in respective tabs
-                    var eventsHtml = '<table class="table">';
-                    eventsList.forEach(function (item, index) {
-                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
-                        eventsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
-                    });
-                    eventsHtml += '</table>';
-                    $('#events').html(eventsHtml);
+                        // Find all <li> elements between the start section and the next mw-heading
+                        var $content = $header.nextUntil('div.mw-heading.mw-heading2', 'ul');
 
-                    var birthsHtml = '<table class="table">';
-                    birthsList.forEach(function (item, index) {
-                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
-                        birthsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
-                    });
-                    birthsHtml += '</table>';
-                    $('#births').html(birthsHtml);
+                        // Iterate through found ul lists and extract all <li> items
+                        $content.each(function() {
+                            var $ul = $(this);
+                            if ($ul.is('ul')) {
+                                listItems += $ul.html(); // Only append the <li> elements
+                            }
+                        });
 
-                    var holidaysHtml = '<table class="table">';
-                    holidaysList.forEach(function (item, index) {
-                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
-                        holidaysHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
-                    });
-                    holidaysHtml += '</table>';
-                    $('#holidays').html(holidaysHtml);
+                        return listItems;
+                    }
 
-                    var deathsHtml = '<table class="table">';
-                    deathsList.forEach(function (item, index) {
-                        var rowClass = index % 2 === 0 ? 'table-primary' : 'table-secondary';
-                        deathsHtml += '<tr class="' + rowClass + '"><td>' + '&bull;    ' + item + '</td></tr>';
-                    });
-                    deathsHtml += '</table>';
-                    $('#deaths').html(deathsHtml);
+                    // Extract <li> elements for each section
+                    var eventsHtml = extractListItems('mw-heading mw-heading2', 'Events');
+                    var birthsHtml = extractListItems('mw-heading mw-heading2', 'Births');
+                    var holidaysHtml = extractListItems('mw-heading mw-heading2', 'Holidays_and_observances');
+                    var deathsHtml = extractListItems('mw-heading mw-heading2', 'Deaths');
 
+                    // Display <li> elements in respective tabs
+                    $('#events').html('<ul>' + eventsHtml + '</ul>');
+                    $('#births').html('<ul>' + birthsHtml + '</ul>');
+                    $('#holidays').html('<ul>' + holidaysHtml + '</ul>');
+                    $('#deaths').html('<ul>' + deathsHtml + '</ul>');
+
+                    // Log the extracted content to the console
+                    console.log('Events HTML:', eventsHtml);
+                    console.log('Births HTML:', birthsHtml);
+                    console.log('Holidays HTML:', holidaysHtml);
+                    console.log('Deaths HTML:', deathsHtml);
+                },
+                error: function() {
+                    console.error('Failed to fetch content.');
                 }
             });
         });
