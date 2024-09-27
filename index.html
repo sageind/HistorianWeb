@@ -30,15 +30,30 @@
         .tab-content {
             margin-top: 20px;
         }
-        
-        .tab-content ul, a{
-            color: #f8f9fa; /* Light gray color */
-        }
-        
+
         a {
             text-decoration: none;
         }
-        
+
+        /* Additional styling for table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Alternate row styling */
+        tbody tr:nth-child(even) {
+            background-color: #fff8e1; /* Very light yellow */
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #ffecd0; /* Slightly darker yellow for contrast */
+        }
     </style>
 </head>
 <body>
@@ -95,9 +110,9 @@
                     // Create a temporary DOM element to parse the HTML
                     var $html = $('<div>').html(htmlContent);
 
-                    // Function to extract <li> elements within each section
+                    // Function to extract <li> elements within each section and put them in a table
                     function extractListItems(headerClass, startId) {
-                        var listItems = '';
+                        var tableRows = '';
                         var $header = $html.find('div.mw-heading.mw-heading2:has(h2[id="' + startId + '"])');
 
                         if ($header.length === 0) {
@@ -112,24 +127,37 @@
                         $content.each(function() {
                             var $ul = $(this);
                             if ($ul.is('ul')) {
-                                listItems += $ul.html(); // Only append the <li> elements
+                                $ul.find('li').each(function(index) {
+                                    var $li = $(this);
+
+                                    // Remove links and replace with text
+                                    $li.find('a').each(function() {
+                                        var linkText = $(this).text();
+                                        $(this).replaceWith(linkText);
+                                    });
+
+                                    // Remove square bracketed text [citation needed], etc.
+                                    var cleanText = $li.html().replace(/\[.*?\]/g, '');
+
+                                    tableRows += '<tr><td>' + cleanText + '</td></tr>';
+                                });
                             }
                         });
 
-                        return listItems;
+                        return tableRows;
                     }
 
-                    // Extract <li> elements for each section
+                    // Extract list items for each section and create table rows
                     var eventsHtml = extractListItems('mw-heading mw-heading2', 'Events');
                     var birthsHtml = extractListItems('mw-heading mw-heading2', 'Births');
                     var holidaysHtml = extractListItems('mw-heading mw-heading2', 'Holidays_and_observances');
                     var deathsHtml = extractListItems('mw-heading mw-heading2', 'Deaths');
 
-                    // Display <li> elements in respective tabs
-                    $('#events').html('<ul>' + eventsHtml + '</ul>');
-                    $('#births').html('<ul>' + birthsHtml + '</ul>');
-                    $('#holidays').html('<ul>' + holidaysHtml + '</ul>');
-                    $('#deaths').html('<ul>' + deathsHtml + '</ul>');
+                    // Display extracted items in respective tables (without <thead>)
+                    $('#events').html('<table class="table"><tbody>' + eventsHtml + '</tbody></table>');
+                    $('#births').html('<table class="table"><tbody>' + birthsHtml + '</tbody></table>');
+                    $('#holidays').html('<table class="table"><tbody>' + holidaysHtml + '</tbody></table>');
+                    $('#deaths').html('<table class="table"><tbody>' + deathsHtml + '</tbody></table>');
 
                     // Log the extracted content to the console
                     console.log('Events HTML:', eventsHtml);
@@ -145,3 +173,4 @@
     </script>
 </body>
 </html>
+
