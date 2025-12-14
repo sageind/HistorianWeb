@@ -81,10 +81,22 @@
     </div>
 
     <div class="tab-content">
-        <div id="events" class="tab-pane fade show active"></div>
-        <div id="births" class="tab-pane fade"></div>
-        <div id="holidays" class="tab-pane fade"></div>
-        <div id="deaths" class="tab-pane fade"></div>
+        <div id="events" class="tab-pane fade show active">
+            <input class="form-control mb-2 search" placeholder="Search events">
+            <table class="table"><tbody></tbody></table>
+        </div>
+        <div id="births" class="tab-pane fade">
+            <input class="form-control mb-2 search" placeholder="Search births">
+            <table class="table"><tbody></tbody></table>
+        </div>
+        <div id="holidays" class="tab-pane fade">
+            <input class="form-control mb-2 search" placeholder="Search holidays">
+            <table class="table"><tbody></tbody></table>
+        </div>
+        <div id="deaths" class="tab-pane fade">
+            <input class="form-control mb-2 search" placeholder="Search deaths">
+            <table class="table"><tbody></tbody></table>
+        </div>
     </div>
 
     <div class="footer">
@@ -94,70 +106,113 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function () {
+        const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+        const FAVORITES_KEY = 'historian_favorites';
         
-            var currentDate = new Date();
-            var month = currentDate.toLocaleString('default', { month: 'long' });
-            var day = currentDate.getDate();
+        const favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
         
-            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page='
-                + month + '_' + day + '&origin=*';
+        function isFavorite(text) {
+            return favorites.includes(text);
+        }
         
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                success: function (data) {
+        function toggleFavorite(text) {
+            const idx = favorites.indexOf(text);
+            if (idx === -1) favorites.push(text);
+            else favorites.splice(idx, 1);
+            localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        }
         
-                    var htmlContent = data.parse.text['*'];
-                    var $html = $('<div>').html(htmlContent);
+        function fetchWithCache(url, cacheKey) {
+            const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+            if (cached && Date.now() - cached.time < CACHE_TTL) {
+                return Promise.resolve(cached.data);
+            }
         
-                    function extractSection(sectionId) {
-                        var rows = '';
+            return fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    localStorage.setItem(cacheKey, JSON.stringify({
+                        time: Date.now(),
+                        data
+                    }));
+                    return data;
+                });
+        }
         
-                        var $h2 = $html.find('h2#' + sectionId).closest('div.mw-heading');
-                        if ($h2.length === 0) return '';
+        function parseSection(doc, sectionId) {
+            const rows = [];
+            const h2 = doc.querySelector(`h2#${sectionId}`)?.closest('.mw-heading');
+            if (!h2) return rows;
         
-                        var $sectionContent = $h2.nextUntil('div.mw-heading.mw-heading2');
+            let el = h2.nextElementSibling;
+            while (el && !el.classList.contains('mw-heading2')) {
         
-                        $sectionContent.filter('ul').each(function () {
+                if (el.tagName === 'UL') {
+                    el.querySelectorAll(':scope > li').forEach(li => {
         
-                            $(this).children('li').each(function () {
+                        // 🚫 Skip nested lists (Christian feast day etc.)
+                        if (li.querySelector('ul')) return;
         
-                                var $li = $(this).clone();
-        
-                                // 🚫 Skip Christian feast day / any nested observance
-                                if ($li.children('ul').length > 0) {
-                                    return;
-                                }
-        
-                                // Replace links with plain text
-                                $li.find('a').each(function () {
-                                    $(this).replaceWith($(this).text());
-                                });
-        
-                                // Remove citations
-                                var cleanText = $li.text().replace(/\[\d+\]/g, '').trim();
-        
-                                if (cleanText.length > 0) {
-                                    rows += '<tr><td>' + cleanText + '</td></tr>';
-                                }
-                            });
+                        li.querySelectorAll('sup').forEach(s => s.remove());
+                        li.querySelectorAll('a').forEach(a => {
+                            a.replaceWith(document.createTextNode(a.textContent));
                         });
         
-                        return rows;
-                    }
-        
-                    $('#events').html('<table class="table"><tbody>' + extractSection('Events') + '</tbody></table>');
-                    $('#births').html('<table class="table"><tbody>' + extractSection('Births') + '</tbody></table>');
-                    $('#deaths').html('<table class="table"><tbody>' + extractSection('Deaths') + '</tbody></table>');
-                    $('#holidays').html('<table class="table"><tbody>' + extractSection('Holidays_and_observances') + '</tbody></table>');
-                },
-                error: function () {
-                    console.error('Failed to fetch Wikipedia content.');
+                        const text = li.textContent.trim();
+                        if (text) rows.push(text);
+                    });
                 }
+                el = el.nextElementSibling;
+            }
+            return rows;
+        }
+        
+        function render(sectionId, rows) {
+            const container = document.getElementById(sectionId);
+            const tbody = container.querySelector('tbody');
+        
+            tbody.innerHTML = rows.map(text => `
+                <tr class="${isFavorite(text) ? 'table-warning' : ''}">
+                    <td>
+                        <span style="cursor:pointer"
+                              onclick="toggleFavorite('${text.replace(/'/g, "\\'")}'); location.reload();">
+                            ${isFavorite(text) ? '⭐' : '☆'}
+                        </span>
+                        ${text}
+                    </td>
+                </tr>
+            `).join('');
+        
+            container.querySelector('.search').addEventListener('input', e => {
+                const q = e.target.value.toLowerCase();
+                [...tbody.rows].forEach(r => {
+                    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+                });
             });
-        });
-        </script>
+        }
+        
+        (async function init() {
+            const date = new Date();
+            const month = date.toLocaleString('default', { month: 'long' });
+            const day = date.getDate();
+        
+            const page = `${month}_${day}`;
+            const cacheKey = `historian_${page}`;
+            const url = `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`;
+        
+            const data = await fetchWithCache(url, cacheKey);
+            const html = data.parse.text['*'];
+        
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+        
+            render('events', parseSection(doc, 'Events'));
+            render('births', parseSection(doc, 'Births'));
+            render('deaths', parseSection(doc, 'Deaths'));
+            render('holidays', parseSection(doc, 'Holidays_and_observances'));
+        })();
+</script>
+
 </body>
 </html>
 
