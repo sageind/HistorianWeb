@@ -7,7 +7,7 @@ A single page web based version of the Historian application initially launched 
 
 14 Dec 25
 
-Zero dependencies
+✔ Zero dependencies
 
 ✔ Wikipedia-safe caching
 
