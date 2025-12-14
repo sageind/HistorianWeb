@@ -95,82 +95,69 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
+        
             var currentDate = new Date();
             var month = currentDate.toLocaleString('default', { month: 'long' });
             var day = currentDate.getDate();
-            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=' + month + '_' + day + '&origin=*';
-
+        
+            var url = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page='
+                + month + '_' + day + '&origin=*';
+        
             $.ajax({
                 url: url,
                 dataType: 'json',
                 success: function (data) {
+        
                     var htmlContent = data.parse.text['*'];
-                    console.log('Raw HTML Content:', htmlContent); // Log raw HTML content
-
-                    // Create a temporary DOM element to parse the HTML
                     var $html = $('<div>').html(htmlContent);
-
-                    // Function to extract <li> elements within each section and put them in a table
-                    function extractListItems(headerClass, startId) {
-                        var tableRows = '';
-                        var $header = $html.find('div.mw-heading.mw-heading2:has(h2[id="' + startId + '"])');
-
-                        if ($header.length === 0) {
-                            console.error('Header with ID "' + startId + '" not found.');
-                            return '';
-                        }
-
-                        // Find all <li> elements between the start section and the next mw-heading
-                        var $content = $header.nextUntil('div.mw-heading.mw-heading2', 'ul');
-
-                        // Iterate through found ul lists and extract all <li> items
-                        $content.each(function() {
-                            var $ul = $(this);
-                            if ($ul.is('ul')) {
-                                $ul.find('li').each(function(index) {
-                                    var $li = $(this);
-
-                                    // Remove links and replace with text
-                                    $li.find('a').each(function() {
-                                        var linkText = $(this).text();
-                                        $(this).replaceWith(linkText);
-                                    });
-
-                                    // Remove square bracketed text [citation needed], etc.
-                                    var cleanText = $li.html().replace(/\[.*?\]/g, '');
-
-                                    tableRows += '<tr><td>' + cleanText + '</td></tr>';
+        
+                    function extractSection(sectionId) {
+                        var rows = '';
+        
+                        var $h2 = $html.find('h2#' + sectionId).closest('div.mw-heading');
+                        if ($h2.length === 0) return '';
+        
+                        var $sectionContent = $h2.nextUntil('div.mw-heading.mw-heading2');
+        
+                        $sectionContent.filter('ul').each(function () {
+        
+                            $(this).children('li').each(function () {
+        
+                                var $li = $(this).clone();
+        
+                                // 🚫 Skip Christian feast day / any nested observance
+                                if ($li.children('ul').length > 0) {
+                                    return;
+                                }
+        
+                                // Replace links with plain text
+                                $li.find('a').each(function () {
+                                    $(this).replaceWith($(this).text());
                                 });
-                            }
+        
+                                // Remove citations
+                                var cleanText = $li.text().replace(/\[\d+\]/g, '').trim();
+        
+                                if (cleanText.length > 0) {
+                                    rows += '<tr><td>' + cleanText + '</td></tr>';
+                                }
+                            });
                         });
-
-                        return tableRows;
+        
+                        return rows;
                     }
-
-                    // Extract list items for each section and create table rows
-                    var eventsHtml = extractListItems('mw-heading mw-heading2', 'Events');
-                    var birthsHtml = extractListItems('mw-heading mw-heading2', 'Births');
-                    var holidaysHtml = extractListItems('mw-heading mw-heading2', 'Holidays_and_observances');
-                    var deathsHtml = extractListItems('mw-heading mw-heading2', 'Deaths');
-
-                    // Display extracted items in respective tables (without <thead>)
-                    $('#events').html('<table class="table"><tbody>' + eventsHtml + '</tbody></table>');
-                    $('#births').html('<table class="table"><tbody>' + birthsHtml + '</tbody></table>');
-                    $('#holidays').html('<table class="table"><tbody>' + holidaysHtml + '</tbody></table>');
-                    $('#deaths').html('<table class="table"><tbody>' + deathsHtml + '</tbody></table>');
-
-                    // Log the extracted content to the console
-                    console.log('Events HTML:', eventsHtml);
-                    console.log('Births HTML:', birthsHtml);
-                    console.log('Holidays HTML:', holidaysHtml);
-                    console.log('Deaths HTML:', deathsHtml);
+        
+                    $('#events').html('<table class="table"><tbody>' + extractSection('Events') + '</tbody></table>');
+                    $('#births').html('<table class="table"><tbody>' + extractSection('Births') + '</tbody></table>');
+                    $('#deaths').html('<table class="table"><tbody>' + extractSection('Deaths') + '</tbody></table>');
+                    $('#holidays').html('<table class="table"><tbody>' + extractSection('Holidays_and_observances') + '</tbody></table>');
                 },
-                error: function() {
-                    console.error('Failed to fetch content.');
+                error: function () {
+                    console.error('Failed to fetch Wikipedia content.');
                 }
             });
         });
-    </script>
+        </script>
 </body>
 </html>
 
