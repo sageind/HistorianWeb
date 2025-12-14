@@ -6,6 +6,7 @@ A single page web based version of the Historian application initially launched 
 - Cosmo Bootstrap theme from Bootswatch for styling the user interface.
 
 14 Dec 25
+
 Zero dependencies
 ✔ Wikipedia-safe caching
 ✔ Professional-grade parsing
