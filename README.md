@@ -7,14 +7,16 @@ A single page web based version of the Historian application initially launched 
 
 Dec 2025
 
-✔ Wikipedia-safe caching to avoid rate limits
+✔ Offline support (Wikipedia data + UI cached)
 
-✔ Professional-grade parsing
+✔ Installable PWA (Android Chrome, Edge, partial iOS)
 
-✔ Per-tab live search
+✔ Dark mode auto (OS-based)
 
-✔ Persistent favorites
+✔ Swipe navigation (left/right)
 
-✔ No duplication of entries
+✔ Mobile rendering fixed (older DOM parsing), favoriting addes, searchable tabs
+
+✔ One single HTML file
 
 You can access it [here](https://sageind.github.io/HistorianWeb/)
