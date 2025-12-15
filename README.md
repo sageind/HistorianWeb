@@ -15,4 +15,4 @@ Dec 2025
 
 ✔ One single HTML file
 
-You can access it [here](https://sageind.github.io/HistorianWeb/)
+You can access it [here](https://sageind.github.io/HistorianWeb/) , clear Browsing Data if the app does not display data.
