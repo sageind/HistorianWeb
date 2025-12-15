@@ -5,7 +5,7 @@ A single page web based version of the Historian application initially launched 
 - Dynamic URL generation based on the current date for all the categories.
 - Cosmo Bootstrap theme from Bootswatch for styling the user interface.
 
-14 Dec 2025
+Dec 2025
 
 ✔ Wikipedia-safe caching to avoid rate limits
 
