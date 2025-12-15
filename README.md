@@ -7,15 +7,11 @@ A single page web based version of the Historian application initially launched 
 
 Dec 2025
 
-✔ Offline support (Wikipedia data + UI cached)
+✔ Offline support (Wikipedia data cached)
 
-✔ Installable PWA (Android Chrome, Edge, partial iOS)
+✔ Dark mode
 
-✔ Dark mode auto (OS-based)
-
-✔ Swipe navigation (left/right)
-
-✔ Mobile rendering fixed (older DOM parsing), favoriting addes, searchable tabs
+✔ Mobile rendering fixed, favoriting added, searchable tabs
 
 ✔ One single HTML file
 
