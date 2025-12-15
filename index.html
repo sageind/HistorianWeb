@@ -1,155 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Historian Web</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>HistorianWeb</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      background: #0f172a;
-      font-family: Helvetica, Arial, sans-serif;
-      color: #f8fafc;
-    }
+<style>
+:root {
+  --bg: #f4f6f8;
+  --text: #1f2937;
+  --card: #ffffff;
+  --list: #f9fafb;
+  --primary: #2563eb;
+  --separator: rgba(37, 99, 235, 0.18);
+}
 
-    /* NAVBAR */
-    .navbar {
-      background: #020617;
-      box-shadow: 0 2px 10px rgba(0,0,0,.5);
-    }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --text: #ffffff;
+    --card: #020617;
+    --list: #0a0a0a;
+    --separator: rgba(96, 165, 250, 0.18);
+  }
+}
 
-    .navbar-brand {
-      font-weight: 600;
-      letter-spacing: .4px;
-    }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", Helvetica, Arial, sans-serif;
+}
 
-    .nav-pills .nav-link {
-      color: #94a3b8;
-      border-radius: 10px;
-      padding: 0.55rem 1rem;
-      font-weight: 500;
-    }
+.navbar {
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
 
-    .nav-pills .nav-link.active {
-      background: #2563eb;
-      color: #fff;
-    }
+.navbar-brand span {
+  font-style: italic;
+  font-weight: 500;
+}
 
-    /* CARDS */
-    .card {
-      background: #020617;
-      border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.55);
-      border: none;
-    }
+.nav-pills {
+  gap: 0.4rem;
+}
 
-    /* SEARCH */
-    input.search {
-      background: #0a0a0a;
-      color: #fff;
-      border-radius: 10px;
-      border: 1px solid #334155;
-    }
+.nav-pills .nav-link {
+  padding: 0.45rem 0.75rem;
+  border-radius: 10px;
+  color: #6b7280;
+  font-weight: 500;
+}
 
-    input.search::placeholder {
-      color: #9ca3af;
-    }
+.nav-pills .nav-link.active {
+  background: var(--primary);
+  color: #fff;
+}
 
-    input.search:focus {
-      background: #0a0a0a;
-      color: #fff;
-      box-shadow: 0 0 0 .15rem rgba(37,99,235,.4);
-    }
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.22);
+}
 
-    /* TABLE */
-    .table {
-      margin-bottom: 0;
-    }
+.table {
+  margin-bottom: 0;
+}
 
-    .table td {
-      background: #0a0a0a;
-      color: #f8fafc;
-      border: none;
-      padding: 0.6rem 0.4rem;
-      border-bottom: 1px solid rgba(37,99,235,.25);
-    }
+.table tr td {
+  background: var(--list);
+  color: var(--text);
+  border: none;
+  padding: 0.55rem 0.3rem;
+  border-bottom: 1px solid var(--separator);
+}
 
-    .table tr:last-child td {
-      border-bottom: none;
-    }
+.table tr:last-child td {
+  border-bottom: none;
+}
 
-    /* HEART */
-    .heart {
-      cursor: pointer;
-      font-size: 1.15rem;
-      margin-right: 8px;
-      user-select: none;
-    }
+.heart {
+  cursor: pointer;
+  font-size: 1.15rem;
+  margin-right: 6px;
+  user-select: none;
+}
 
-    /* MOBILE MENU */
-    @media (max-width: 991px) {
-      .navbar-collapse {
-        background: #020617;
-        margin-top: .75rem;
-        padding: 1rem;
-        border-radius: 16px;
-      }
+input.form-control {
+  background: #111;
+  color: #f9fafb;
+  border-radius: 10px;
+  border: 1px solid #374151;
+}
 
-      .navbar-text {
-        display: block;
-        text-align: center;
-        margin-top: .75rem;
-        opacity: .85;
-      }
-    }
+input.form-control::placeholder {
+  color: #9ca3af;
+}
 
-    /* FOOTER */
-    .footer {
-      text-align: center;
-      font-size: .8rem;
-      color: #94a3b8;
-      margin: 1.25rem 0;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
-      padding: .5rem;
-      border-radius: 10px;
-    }
-  </style>
+input.form-control:focus {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 0 0 .15rem rgba(37,99,235,.3);
+}
+
+.footer {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  background: var(--card);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
+  border-radius: 12px 12px 0 0;
+}
+</style>
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-  <div class="container-fluid px-3">
-    <a class="navbar-brand" href="#">
-      Historian<span style="font-style:italic;font-family:Arial,Helvetica,sans-serif;">Web</span>
-    </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav me-auto nav nav-pills">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" data-bs-target="#events">Events</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#births">Births</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths">Deaths</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays">Holidays</a></li>
-      </ul>
-
-      <span id="today" class="navbar-text text-white"></span>
-    </div>
-  </div>
+<nav class="navbar navbar-dark bg-dark px-3">
+  <a class="navbar-brand">Historian<span>Web</span></a>
+  <span id="today" class="text-white"></span>
 </nav>
 
-<main class="container-fluid mt-3 px-3">
+<ul class="nav nav-pills justify-content-center mt-2" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">Events</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#births" type="button" role="tab">Births</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths" type="button" role="tab">Deaths</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays" type="button" role="tab">Holidays</button>
+  </li>
+</ul>
+
+<main class="container-fluid mt-3">
   <div class="tab-content">
-    <div id="events" class="tab-pane fade show active card p-3 mb-3"></div>
-    <div id="births" class="tab-pane fade card p-3 mb-3"></div>
-    <div id="deaths" class="tab-pane fade card p-3 mb-3"></div>
-    <div id="holidays" class="tab-pane fade card p-3 mb-3"></div>
+    <div id="events" class="tab-pane fade show active card p-3" role="tabpanel"></div>
+    <div id="births" class="tab-pane fade card p-3" role="tabpanel"></div>
+    <div id="deaths" class="tab-pane fade card p-3" role="tabpanel"></div>
+    <div id="holidays" class="tab-pane fade card p-3" role="tabpanel"></div>
   </div>
 </main>
 
@@ -158,124 +154,109 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+/* ================= PWA INLINE ================= */
 
-  const DATA_KEY = 'historian_daily_data';
-  const FAV_KEY  = 'historian_favorites';
+const manifest={name:"HistorianWeb",short_name:"Historian",start_url:".",display:"standalone",
+background_color:"#0b1220",theme_color:"#2563eb",
+icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>📜</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.head.insertAdjacentHTML('beforeend',`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
 
-  const today = new Date();
-  const dateKey = today.toISOString().split('T')[0];
+const swCode=`self.addEventListener('install',e=>e.waitUntil(caches.open('hist').then(c=>c.addAll(['./']))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+if('serviceWorker'in navigator){
+ navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'text/javascript'})));
+}
 
-  document.getElementById('today').textContent =
-    today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+/* ================= APP LOGIC ================= */
 
-  let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-  let lastData = null;
+const DATA_KEY='historian_data';
+const FAV_KEY='historian_favs';
+const today=new Date();
+document.getElementById('today').textContent=today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
 
-  function isFav(text) {
-    return favorites.includes(text);
-  }
+let favs=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
+let lastData=null;
 
-  function toggleFav(text) {
-    const i = favorites.indexOf(text);
-    if (i === -1) favorites.push(text);
-    else favorites.splice(i, 1);
-    localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-    renderAll(lastData);
-  }
+const clean=t=>t.replace(/\[[^\]]*?\]/g,'').trim();
+const isFav=t=>favs.includes(t);
+const toggleFav=t=>{
+ favs=isFav(t)?favs.filter(x=>x!==t):[...favs,t];
+ localStorage.setItem(FAV_KEY,JSON.stringify(favs));
+ renderAll(lastData);
+};
 
-  function renderSection(id, list) {
-    const el = document.getElementById(id);
-    el.innerHTML = `
-      <input class="form-control search mb-2" placeholder="Search ${id}">
-      <div class="table-responsive">
-        <table class="table table-borderless mb-0">
-          <tbody>
-            ${list.map(item => `
-              <tr>
-                <td>
-                  <span class="heart" data-text="${item.replace(/"/g,'&quot;')}">
-                    ${isFav(item) ? '🩵' : '♡'}
-                  </span>
-                  ${item}
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
+function render(id,list){
+ const el=document.getElementById(id);
+ el.innerHTML=`<input class="form-control mb-2" placeholder="Search">
+ <table class="table"><tbody>
+ ${list.map(x=>`<tr><td><span class="heart" data-t="${x}">${isFav(x)?'🩵':'♡'}</span>${clean(x)}</td></tr>`).join('')}
+ </tbody></table>`;
+ el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.t));
+}
 
-    el.querySelectorAll('.heart').forEach(h => {
-      h.onclick = () => toggleFav(h.dataset.text);
+function parseWiki(html){
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const grab=id=>{
+  const out=[];
+  const h2=doc.getElementById(id);
+  if(!h2)return out;
+  let el=h2.parentElement.nextElementSibling;
+  while(el&&!el.classList.contains('mw-heading2')){
+   if(el.tagName==='UL')
+    el.querySelectorAll(':scope>li').forEach(li=>{
+     if(!li.querySelector('ul')){
+      li.querySelectorAll('sup,a').forEach(x=>x.replaceWith(x.textContent));
+      out.push(li.textContent.trim());
+     }
     });
-
-    const input = el.querySelector('.search');
-    const rows = el.querySelectorAll('tbody tr');
-    input.oninput = e => {
-      const q = e.target.value.toLowerCase();
-      rows.forEach(r => {
-        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-    };
+   el=el.nextElementSibling;
   }
+  return out;
+ };
+ return {
+  events:grab('Events'),
+  births:grab('Births'),
+  deaths:grab('Deaths'),
+  holidays:grab('Holidays_and_observances')
+ };
+}
 
-  function parseWiki(html) {
-    const doc = new DOMParser().parseFromString(html, 'text/html');
+async function init(){
+ const cache=JSON.parse(localStorage.getItem(DATA_KEY)||'null');
+ if(cache&&cache.date===today.toDateString()) lastData=cache.data;
+ else{
+  const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
+  const r=await fetch(`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`);
+  const j=await r.json();
+  lastData=parseWiki(j.parse.text['*']);
+  localStorage.setItem(DATA_KEY,JSON.stringify({date:today.toDateString(),data:lastData}));
+ }
+ renderAll(lastData);
+}
 
-    function extract(id) {
-      const out = [];
-      const h2 = doc.querySelector(`h2#${id}`);
-      if (!h2) return out;
+function renderAll(d){
+ render('events',d.events);
+ render('births',d.births);
+ render('deaths',d.deaths);
+ render('holidays',d.holidays);
+}
 
-      let el = h2.parentElement.nextElementSibling;
-      while (el && !el.classList.contains('mw-heading2')) {
-        if (el.tagName === 'UL') {
-          el.querySelectorAll(':scope > li').forEach(li => {
-            if (li.querySelector('ul')) return;
-            li.querySelectorAll('sup').forEach(s => s.remove());
-            li.querySelectorAll('a').forEach(a => a.replaceWith(a.textContent));
-            out.push(li.textContent.trim());
-          });
-        }
-        el = el.nextElementSibling;
-      }
-      return out;
-    }
+init();
 
-    return {
-      events: extract('Events'),
-      births: extract('Births'),
-      deaths: extract('Deaths'),
-      holidays: extract('Holidays_and_observances')
-    };
-  }
-
-  async function init() {
-    const cached = JSON.parse(localStorage.getItem(DATA_KEY) || 'null');
-
-    if (cached && cached.date === dateKey) {
-      lastData = cached.data;
-    } else {
-      const page = `${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
-      const url = `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`;
-      const res = await fetch(url);
-      const json = await res.json();
-      lastData = parseWiki(json.parse.text['*']);
-      localStorage.setItem(DATA_KEY, JSON.stringify({ date: dateKey, data: lastData }));
-    }
-
-    renderAll(lastData);
-  }
-
-  function renderAll(data) {
-    renderSection('events', data.events);
-    renderSection('births', data.births);
-    renderSection('deaths', data.deaths);
-    renderSection('holidays', data.holidays);
-  }
-
-  init();
+/* ================= SWIPE NAV ================= */
+let xStart=null;
+document.addEventListener('touchstart',e=>xStart=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+ if(!xStart)return;
+ const dx=e.changedTouches[0].clientX-xStart;
+ if(Math.abs(dx)>50){
+  const tabs=[...document.querySelectorAll('.nav-link')];
+  const i=tabs.findIndex(t=>t.classList.contains('active'));
+  const next=tabs[i+(dx<0?1:-1)];
+  if(next) next.click();
+ }
+ xStart=null;
 });
 </script>
 
