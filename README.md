@@ -7,9 +7,7 @@ A single page web based version of the Historian application initially launched 
 
 14 Dec 2025
 
-✔ Zero dependencies
-
-✔ Wikipedia-safe caching
+✔ Wikipedia-safe caching to avoid rate limits
 
 ✔ Professional-grade parsing
 
@@ -18,7 +16,5 @@ A single page web based version of the Historian application initially launched 
 ✔ Persistent favorites
 
 ✔ No duplication of entries
-
-✔ Future extensible (filters, tags, export)
 
 You can access it [here](https://sageind.github.io/HistorianWeb/)
