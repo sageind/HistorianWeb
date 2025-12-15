@@ -13,13 +13,18 @@
   --bg: #f4f6f8;
   --text: #1f2937;
   --card: #ffffff;
+  --list: #f9fafb;
   --primary: #2563eb;
+  --separator: rgba(37, 99, 235, 0.18);
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0b1220;
-    --text: #e5e7eb;
+    --text: #ffffff;
     --card: #020617;
+    --list: #0a0a0a;
+    --separator: rgba(96, 165, 250, 0.18);
   }
 }
 
@@ -30,7 +35,7 @@ body {
 }
 
 .navbar {
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
 
 .navbar-brand span {
@@ -39,7 +44,7 @@ body {
 }
 
 .nav-pills {
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .nav-pills .nav-link {
@@ -47,7 +52,6 @@ body {
   border-radius: 10px;
   color: #6b7280;
   font-weight: 500;
-  transition: background .2s ease;
 }
 
 .nav-pills .nav-link.active {
@@ -58,16 +62,23 @@ body {
 .card {
   background: var(--card);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  box-shadow: 0 8px 22px rgba(0,0,0,.22);
 }
 
 .table {
   margin-bottom: 0;
 }
 
-.table td {
+.table tr td {
+  background: var(--list);
+  color: var(--text);
   border: none;
-  padding: 0.55rem 0.25rem;
+  padding: 0.55rem 0.3rem;
+  border-bottom: 1px solid var(--separator);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
 }
 
 .heart {
@@ -78,12 +89,31 @@ body {
 }
 
 input.form-control {
+  background: #111;
+  color: #f9fafb;
   border-radius: 10px;
-  border: 1px solid #cbd5f5;
+  border: 1px solid #374151;
+}
+
+input.form-control::placeholder {
+  color: #9ca3af;
 }
 
 input.form-control:focus {
-  box-shadow: 0 0 0 .15rem rgba(37,99,235,.25);
+  background: #111;
+  color: #fff;
+  box-shadow: 0 0 0 .15rem rgba(37,99,235,.3);
+}
+
+.footer {
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  background: var(--card);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
+  border-radius: 12px 12px 0 0;
 }
 </style>
 </head>
@@ -95,66 +125,47 @@ input.form-control:focus {
   <span id="today" class="text-white"></span>
 </nav>
 
-<ul class="nav nav-pills justify-content-center mt-2">
-  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#events">Events</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#births">Births</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#deaths">Deaths</a></li>
-  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#holidays">Holidays</a></li>
+<ul class="nav nav-pills justify-content-center mt-2" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">Events</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#births" type="button" role="tab">Births</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths" type="button" role="tab">Deaths</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays" type="button" role="tab">Holidays</button>
+  </li>
 </ul>
 
 <main class="container-fluid mt-3">
   <div class="tab-content">
-    <div id="events" class="tab-pane fade show active card p-3"></div>
-    <div id="births" class="tab-pane fade card p-3"></div>
-    <div id="deaths" class="tab-pane fade card p-3"></div>
-    <div id="holidays" class="tab-pane fade card p-3"></div>
+    <div id="events" class="tab-pane fade show active card p-3" role="tabpanel"></div>
+    <div id="births" class="tab-pane fade card p-3" role="tabpanel"></div>
+    <div id="deaths" class="tab-pane fade card p-3" role="tabpanel"></div>
+    <div id="holidays" class="tab-pane fade card p-3" role="tabpanel"></div>
   </div>
 </main>
+
+<div class="footer">Sage India</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 /* ================= PWA INLINE ================= */
 
-const manifest = {
-  name: "HistorianWeb",
-  short_name: "Historian",
-  start_url: ".",
-  display: "standalone",
-  background_color: "#0b1220",
-  theme_color: "#2563eb",
-  icons: [{
-    src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>📜</text></svg>",
-    sizes: "192x192",
-    type: "image/svg+xml"
-  }]
-};
+const manifest={name:"HistorianWeb",short_name:"Historian",start_url:".",display:"standalone",
+background_color:"#0b1220",theme_color:"#2563eb",
+icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>📜</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.head.insertAdjacentHTML('beforeend',`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
 
-const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-document.head.insertAdjacentHTML(
-  'beforeend',
-  `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`
-);
-
-const swCode = `
-const CACHE='historian-cache';
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./'])));
-});
-self.addEventListener('fetch',e=>{
-  e.respondWith(
-    caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
-      const copy=res.clone();
-      caches.open(CACHE).then(c=>c.put(e.request,copy));
-      return res;
-    }))
-  );
-});
-`;
-
-if ('serviceWorker' in navigator) {
-  const swBlob = new Blob([swCode], {type:'text/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+const swCode=`self.addEventListener('install',e=>e.waitUntil(caches.open('hist').then(c=>c.addAll(['./']))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+if('serviceWorker'in navigator){
+ navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'text/javascript'})));
 }
 
 /* ================= APP LOGIC ================= */
@@ -162,79 +173,73 @@ if ('serviceWorker' in navigator) {
 const DATA_KEY='historian_data';
 const FAV_KEY='historian_favs';
 const today=new Date();
-document.getElementById('today').textContent =
-  today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
+document.getElementById('today').textContent=today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
 
 let favs=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
 let lastData=null;
 
-function isFav(t){return favs.includes(t)}
-function toggleFav(t){
-  favs=isFav(t)?favs.filter(x=>x!==t):[...favs,t];
-  localStorage.setItem(FAV_KEY,JSON.stringify(favs));
-  renderAll(lastData);
-}
-
-function cleanText(t){
-  return t.replace(/\[[^\]]*?\]/g,'').trim();
-}
+const clean=t=>t.replace(/\[[^\]]*?\]/g,'').trim();
+const isFav=t=>favs.includes(t);
+const toggleFav=t=>{
+ favs=isFav(t)?favs.filter(x=>x!==t):[...favs,t];
+ localStorage.setItem(FAV_KEY,JSON.stringify(favs));
+ renderAll(lastData);
+};
 
 function render(id,list){
-  const el=document.getElementById(id);
-  el.innerHTML=`<input class="form-control mb-2" placeholder="Search">
-  <table class="table"><tbody>
-  ${list.map(x=>`<tr><td>
-    <span class="heart" data-t="${x}">${isFav(x)?'🩵':'♡'}</span>${cleanText(x)}
-  </td></tr>`).join('')}
-  </tbody></table>`;
-  el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.t));
+ const el=document.getElementById(id);
+ el.innerHTML=`<input class="form-control mb-2" placeholder="Search">
+ <table class="table"><tbody>
+ ${list.map(x=>`<tr><td><span class="heart" data-t="${x}">${isFav(x)?'🩵':'♡'}</span>${clean(x)}</td></tr>`).join('')}
+ </tbody></table>`;
+ el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.t));
 }
 
 function parseWiki(html){
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  const grab=id=>{
-    const out=[];
-    const h2=doc.getElementById(id);
-    if(!h2)return out;
-    let el=h2.parentElement.nextElementSibling;
-    while(el&&!el.classList.contains('mw-heading2')){
-      if(el.tagName==='UL')
-        el.querySelectorAll(':scope>li').forEach(li=>{
-          if(!li.querySelector('ul')){
-            li.querySelectorAll('sup,a').forEach(x=>x.replaceWith(x.textContent));
-            out.push(li.textContent.trim());
-          }
-        });
-      el=el.nextElementSibling;
-    }
-    return out;
-  };
-  return {
-    events:grab('Events'),
-    births:grab('Births'),
-    deaths:grab('Deaths'),
-    holidays:grab('Holidays_and_observances')
-  };
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const grab=id=>{
+  const out=[];
+  const h2=doc.getElementById(id);
+  if(!h2)return out;
+  let el=h2.parentElement.nextElementSibling;
+  while(el&&!el.classList.contains('mw-heading2')){
+   if(el.tagName==='UL')
+    el.querySelectorAll(':scope>li').forEach(li=>{
+     if(!li.querySelector('ul')){
+      li.querySelectorAll('sup,a').forEach(x=>x.replaceWith(x.textContent));
+      out.push(li.textContent.trim());
+     }
+    });
+   el=el.nextElementSibling;
+  }
+  return out;
+ };
+ return {
+  events:grab('Events'),
+  births:grab('Births'),
+  deaths:grab('Deaths'),
+  holidays:grab('Holidays_and_observances')
+ };
 }
 
 async function init(){
-  const cache=JSON.parse(localStorage.getItem(DATA_KEY)||'null');
-  if(cache&&cache.date===today.toDateString()) lastData=cache.data;
-  else{
-    const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
-    const r=await fetch(`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`);
-    const j=await r.json();
-    lastData=parseWiki(j.parse.text['*']);
-    localStorage.setItem(DATA_KEY,JSON.stringify({date:today.toDateString(),data:lastData}));
-  }
-  renderAll(lastData);
+ const cache=JSON.parse(localStorage.getItem(DATA_KEY)||'null');
+ if(cache&&cache.date===today.toDateString()) lastData=cache.data;
+ else{
+  const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
+  const r=await fetch(`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`);
+  const j=await r.json();
+  lastData=parseWiki(j.parse.text['*']);
+  localStorage.setItem(DATA_KEY,JSON.stringify({date:today.toDateString(),data:lastData}));
+ }
+ renderAll(lastData);
 }
 
 function renderAll(d){
-  render('events',d.events);
-  render('births',d.births);
-  render('deaths',d.deaths);
-  render('holidays',d.holidays);
+ render('events',d.events);
+ render('births',d.births);
+ render('deaths',d.deaths);
+ render('holidays',d.holidays);
 }
 
 init();
@@ -243,16 +248,17 @@ init();
 let xStart=null;
 document.addEventListener('touchstart',e=>xStart=e.touches[0].clientX);
 document.addEventListener('touchend',e=>{
-  if(!xStart)return;
-  const dx=e.changedTouches[0].clientX-xStart;
-  if(Math.abs(dx)>50){
-    const tabs=[...document.querySelectorAll('.nav-link')];
-    const i=tabs.findIndex(t=>t.classList.contains('active'));
-    const next=tabs[i+(dx<0?1:-1)];
-    if(next) next.click();
-  }
-  xStart=null;
+ if(!xStart)return;
+ const dx=e.changedTouches[0].clientX-xStart;
+ if(Math.abs(dx)>50){
+  const tabs=[...document.querySelectorAll('.nav-link')];
+  const i=tabs.findIndex(t=>t.classList.contains('active'));
+  const next=tabs[i+(dx<0?1:-1)];
+  if(next) next.click();
+ }
+ xStart=null;
 });
 </script>
+
 </body>
 </html>
