@@ -1,264 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-  <meta charset="UTF-8">
-  <title>HistorianWeb</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <style>
-  :root {
-    --bg: #f4f6f8;
-    --text: #1f2937;
-    --card: #ffffff;
-    --list: #f9fafb;
-    --primary: #2563eb;
-    --separator: rgba(37, 99, 235, 0.18);
+<head>
+<meta charset="UTF-8">
+<title>HistorianWeb</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+ --bg:#f4f6f8;--text:#1f2937;--card:#ffffff;--list:#f9fafb;
+ --primary:#2563eb;--separator:rgba(37,99,235,.18)
+}
+@media(prefers-color-scheme:dark){
+ :root{
+  --bg:#0b1220;--text:#fff;--card:#020617;--list:#0a0a0a;
+  --separator:rgba(96,165,250,.18)
+ }
+}
+body{
+ background:var(--bg);color:var(--text);
+ font-family:"Inter",Helvetica,Arial,sans-serif
+}
+.card{
+ background:var(--card);border-radius:16px;
+ box-shadow:0 8px 22px rgba(0,0,0,.22)
+}
+.table td{
+ background:var(--list);color:var(--text);
+ border-bottom:1px solid var(--separator);
+ padding:.55rem .3rem
+}
+.heart{cursor:pointer;font-size:1.15rem;margin-right:6px}
+.nav-pills{gap:.4rem}
+.nav-link{padding:.45rem .75rem;border-radius:10px}
+input.form-control{
+ background:#111;color:#f9fafb;border:1px solid #374151;
+ border-radius:10px
+}
+input::placeholder{color:#9ca3af}
+.footer{
+ margin-top:1.5rem;padding:.75rem;text-align:center;
+ font-size:.85rem;color:#94a3b8;
+ box-shadow:inset 0 2px 6px rgba(0,0,0,.35)
+}
+.navbar-brand span{font-style:italic}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark px-3">
+ <span class="navbar-brand">Historian<span>Web</span></span>
+ <span id="today" class="text-white"></span>
+</nav>
+
+<ul class="nav nav-pills justify-content-center mt-2">
+ <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#events">Events</button></li>
+ <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#births">Births</button></li>
+ <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths">Deaths</button></li>
+ <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays">Holidays</button></li>
+</ul>
+
+<main class="container-fluid mt-3">
+ <div class="tab-content">
+  <div id="events" class="tab-pane fade show active card p-3"></div>
+  <div id="births" class="tab-pane fade card p-3"></div>
+  <div id="deaths" class="tab-pane fade card p-3"></div>
+  <div id="holidays" class="tab-pane fade card p-3"></div>
+ </div>
+</main>
+
+<div class="footer">Sage India</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const DATA_KEY='historian_data';
+const FAV_KEY='historian_favs';
+const today=new Date();
+document.getElementById('today').textContent=
+ today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
+
+let favs=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
+let lastData=null;
+
+const clean=t=>t.replace(/\[[^\]]*]/g,'').trim();
+const isFav=t=>favs.includes(t);
+const toggleFav=t=>{
+ favs=isFav(t)?favs.filter(x=>x!==t):[...favs,t];
+ localStorage.setItem(FAV_KEY,JSON.stringify(favs));
+ renderAll(lastData);
+};
+
+function render(id,list){
+ const el=document.getElementById(id);
+ el.innerHTML=`
+ <input class="form-control mb-2 search" placeholder="Search">
+ <table class="table"><tbody>
+ ${list.map(x=>`
+  <tr><td>
+   <span class="heart" data-t="${x}">${isFav(x)?'🩵':'♡'}</span>${clean(x)}
+  </td></tr>`).join('')}
+ </tbody></table>`;
+ el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.t));
+
+ const rows=[...el.querySelectorAll('tbody tr')];
+ el.querySelector('.search').oninput=e=>{
+  const q=e.target.value.toLowerCase();
+  rows.forEach(r=>r.style.display=
+   r.textContent.toLowerCase().includes(q)?'':'none');
+ };
+}
+
+/* ===== MOBILE-SAFE PARSER ===== */
+function parseSection(html,id){
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const out=[];
+ const anchor=doc.querySelector(`span#${id}`);
+ if(!anchor) return out;
+
+ let sec=anchor.closest('.mw-heading,.mw-heading2');
+ let el=sec.nextElementSibling;
+
+ while(el && !el.matches('.mw-heading,.mw-heading2')){
+  if(el.tagName==='UL'){
+   el.querySelectorAll(':scope>li').forEach(li=>{
+    if(li.querySelector('ul')) return;
+    li.querySelectorAll('sup,a').forEach(x=>x.replaceWith(x.textContent));
+    out.push(li.textContent.trim());
+   });
   }
-  
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0b1220;
-      --text: #ffffff;
-      --card: #020617;
-      --list: #0a0a0a;
-      --separator: rgba(96, 165, 250, 0.18);
-    }
-  }
-  
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Inter", Helvetica, Arial, sans-serif;
-  }
-  
-  .navbar {
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-  }
-  
-  .navbar-brand span {
-    font-style: italic;
-    font-weight: 500;
-  }
-  
-  .nav-pills {
-    gap: 0.4rem;
-  }
-  
-  .nav-pills .nav-link {
-    padding: 0.45rem 0.75rem;
-    border-radius: 10px;
-    color: #6b7280;
-    font-weight: 500;
-  }
-  
-  .nav-pills .nav-link.active {
-    background: var(--primary);
-    color: #fff;
-  }
-  
-  .card {
-    background: var(--card);
-    border-radius: 16px;
-    box-shadow: 0 8px 22px rgba(0,0,0,.22);
-  }
-  
-  .table {
-    margin-bottom: 0;
-  }
-  
-  .table tr td {
-    background: var(--list);
-    color: var(--text);
-    border: none;
-    padding: 0.55rem 0.3rem;
-    border-bottom: 1px solid var(--separator);
-  }
-  
-  .table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .heart {
-    cursor: pointer;
-    font-size: 1.15rem;
-    margin-right: 6px;
-    user-select: none;
-  }
-  
-  input.form-control {
-    background: #111;
-    color: #f9fafb;
-    border-radius: 10px;
-    border: 1px solid #374151;
-  }
-  
-  input.form-control::placeholder {
-    color: #9ca3af;
-  }
-  
-  input.form-control:focus {
-    background: #111;
-    color: #fff;
-    box-shadow: 0 0 0 .15rem rgba(37,99,235,.3);
-  }
-  
-  .footer {
-    margin-top: 1.5rem;
-    padding: 0.75rem;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #94a3b8;
-    background: var(--card);
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
-    border-radius: 12px 12px 0 0;
-  }
-  </style>
-  </head>
-  
-  <body>
-  
-  <nav class="navbar navbar-dark bg-dark px-3">
-    <a class="navbar-brand">Historian<span>Web</span></a>
-    <span id="today" class="text-white"></span>
-  </nav>
-  
-  <ul class="nav nav-pills justify-content-center mt-2" role="tablist">
-    <li class="nav-item">
-      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">Events</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#births" type="button" role="tab">Births</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths" type="button" role="tab">Deaths</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays" type="button" role="tab">Holidays</button>
-    </li>
-  </ul>
-  
-  <main class="container-fluid mt-3">
-    <div class="tab-content">
-      <div id="events" class="tab-pane fade show active card p-3" role="tabpanel"></div>
-      <div id="births" class="tab-pane fade card p-3" role="tabpanel"></div>
-      <div id="deaths" class="tab-pane fade card p-3" role="tabpanel"></div>
-      <div id="holidays" class="tab-pane fade card p-3" role="tabpanel"></div>
-    </div>
-  </main>
-  
-  <div class="footer">Sage India</div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script>
-  /* ================= PWA INLINE ================= */
-  
-  const manifest={name:"HistorianWeb",short_name:"Historian",start_url:".",display:"standalone",
-  background_color:"#0b1220",theme_color:"#2563eb",
-  icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>📜</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
-  const manifestBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-  document.head.insertAdjacentHTML('beforeend',`<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
-  
-  const swCode=`self.addEventListener('install',e=>e.waitUntil(caches.open('hist').then(c=>c.addAll(['./']))));
-  self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
-  if('serviceWorker'in navigator){
-   navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'text/javascript'})));
-  }
-  
-  /* ================= APP LOGIC ================= */
-  
-  const DATA_KEY='historian_data';
-  const FAV_KEY='historian_favs';
-  const today=new Date();
-  document.getElementById('today').textContent=today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
-  
-  let favs=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
-  let lastData=null;
-  
-  const clean=t=>t.replace(/\[[^\]]*?\]/g,'').trim();
-  const isFav=t=>favs.includes(t);
-  const toggleFav=t=>{
-   favs=isFav(t)?favs.filter(x=>x!==t):[...favs,t];
-   localStorage.setItem(FAV_KEY,JSON.stringify(favs));
-   renderAll(lastData);
+  el=el.nextElementSibling;
+ }
+ return out;
+}
+
+async function init(){
+ const cache=JSON.parse(localStorage.getItem(DATA_KEY)||'null');
+ if(cache&&cache.date===today.toDateString()) lastData=cache.data;
+ else{
+  const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
+  const r=await fetch(`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`);
+  const j=await r.json();
+  const html=j.parse.text['*'];
+  lastData={
+   events:parseSection(html,'Events'),
+   births:parseSection(html,'Births'),
+   deaths:parseSection(html,'Deaths'),
+   holidays:parseSection(html,'Holidays_and_observances')
   };
-  
-  function render(id,list){
-   const el=document.getElementById(id);
-   el.innerHTML=`<input class="form-control mb-2" placeholder="Search">
-   <table class="table"><tbody>
-   ${list.map(x=>`<tr><td><span class="heart" data-t="${x}">${isFav(x)?'🩵':'♡'}</span>${clean(x)}</td></tr>`).join('')}
-   </tbody></table>`;
-   el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.t));
-  }
-  
-  function parseWiki(html){
-   const doc=new DOMParser().parseFromString(html,'text/html');
-   const grab=id=>{
-    const out=[];
-    const h2=doc.getElementById(id);
-    if(!h2)return out;
-    let el=h2.parentElement.nextElementSibling;
-    while(el&&!el.classList.contains('mw-heading2')){
-     if(el.tagName==='UL')
-      el.querySelectorAll(':scope>li').forEach(li=>{
-       if(!li.querySelector('ul')){
-        li.querySelectorAll('sup,a').forEach(x=>x.replaceWith(x.textContent));
-        out.push(li.textContent.trim());
-       }
-      });
-     el=el.nextElementSibling;
-    }
-    return out;
-   };
-   return {
-    events:grab('Events'),
-    births:grab('Births'),
-    deaths:grab('Deaths'),
-    holidays:grab('Holidays_and_observances')
-   };
-  }
-  
-  async function init(){
-   const cache=JSON.parse(localStorage.getItem(DATA_KEY)||'null');
-   if(cache&&cache.date===today.toDateString()) lastData=cache.data;
-   else{
-    const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
-    const r=await fetch(`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`);
-    const j=await r.json();
-    lastData=parseWiki(j.parse.text['*']);
-    localStorage.setItem(DATA_KEY,JSON.stringify({date:today.toDateString(),data:lastData}));
-   }
-   renderAll(lastData);
-  }
-  
-  function renderAll(d){
-   render('events',d.events);
-   render('births',d.births);
-   render('deaths',d.deaths);
-   render('holidays',d.holidays);
-  }
-  
-  init();
-  
-  /* ================= SWIPE NAV ================= */
-  let xStart=null;
-  document.addEventListener('touchstart',e=>xStart=e.touches[0].clientX);
-  document.addEventListener('touchend',e=>{
-   if(!xStart)return;
-   const dx=e.changedTouches[0].clientX-xStart;
-   if(Math.abs(dx)>50){
-    const tabs=[...document.querySelectorAll('.nav-link')];
-    const i=tabs.findIndex(t=>t.classList.contains('active'));
-    const next=tabs[i+(dx<0?1:-1)];
-    if(next) next.click();
-   }
-   xStart=null;
-  });
-  </script>
-  
-  </body>
+  localStorage.setItem(DATA_KEY,JSON.stringify({date:today.toDateString(),data:lastData}));
+ }
+ renderAll(lastData);
+}
+
+function renderAll(d){
+ render('events',d.events);
+ render('births',d.births);
+ render('deaths',d.deaths);
+ render('holidays',d.holidays);
+}
+
+init();
+
+/* Swipe navigation */
+let xStart=null;
+document.addEventListener('touchstart',e=>xStart=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+ if(!xStart)return;
+ const dx=e.changedTouches[0].clientX-xStart;
+ if(Math.abs(dx)>50){
+  const tabs=[...document.querySelectorAll('.nav-link')];
+  const i=tabs.findIndex(t=>t.classList.contains('active'));
+  const next=tabs[i+(dx<0?1:-1)];
+  if(next) next.click();
+ }
+ xStart=null;
+});
+</script>
+
+</body>
 </html>
