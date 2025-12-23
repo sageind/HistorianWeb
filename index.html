@@ -134,24 +134,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
 
   function isFav(t){ return favorites.includes(t); }
-
   function toggleFav(t){
     const i = favorites.indexOf(t);
     i === -1 ? favorites.push(t) : favorites.splice(i,1);
     localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
     renderAll(data);
-  }
-
-  function attachSearch(el){
-    const input = el.querySelector('.search');
-    const rows  = el.querySelectorAll('tbody tr');
-
-    input.addEventListener('input', () => {
-      const q = input.value.toLowerCase();
-      rows.forEach(r => {
-        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
-      });
-    });
   }
 
   function renderSection(id, title, list){
@@ -168,53 +155,49 @@ document.addEventListener('DOMContentLoaded', async () => {
           </td></tr>`).join('')}
       </tbody></table>
     `;
-
-    el.querySelectorAll('.heart').forEach(h=>{
-      h.onclick = () => toggleFav(h.dataset.text);
-    });
-
-    attachSearch(el);
+    el.querySelectorAll('.heart').forEach(h=>h.onclick=()=>toggleFav(h.dataset.text));
   }
 
   function parseWiki(html){
-    const doc = new DOMParser().parseFromString(html,'text/html');
-    const extract = id => {
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const extract=id=>{
       const out=[];
-      const h2 = doc.querySelector(`h2#${id}`);
-      if(!h2) return out;
-      let el = h2.parentElement.nextElementSibling;
-      while(el && !el.classList.contains('mw-heading2')){
+      const h2=doc.querySelector(`h2#${id}`);
+      if(!h2)return out;
+      let el=h2.parentElement.nextElementSibling;
+      while(el&&!el.classList.contains('mw-heading2')){
         if(el.tagName==='UL'){
           el.querySelectorAll(':scope>li').forEach(li=>{
-            if(li.querySelector('ul')) return;
+            if(li.querySelector('ul'))return;
             li.querySelectorAll('sup').forEach(s=>s.remove());
             li.querySelectorAll('a').forEach(a=>a.replaceWith(a.textContent));
             out.push(li.textContent.trim());
           });
         }
-        el = el.nextElementSibling;
+        el=el.nextElementSibling;
       }
       return out;
     };
     return {
-      events: extract('Events'),
-      births: extract('Births'),
-      deaths: extract('Deaths'),
-      holidays: extract('Holidays_and_observances')
+      events:extract('Events'),
+      births:extract('Births'),
+      deaths:extract('Deaths'),
+      holidays:extract('Holidays_and_observances')
     };
   }
 
   let html = localStorage.getItem(RAW_KEY);
   if(!html){
-    const page = `${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
-    const url  = `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`;
-    const res  = await fetch(url);
-    const json = await res.json();
-    html = json.parse.text['*'];
-    localStorage.setItem(RAW_KEY, html);
+    const page=`${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
+    const url=`https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`;
+    const res=await fetch(url);
+    const json=await res.json();
+    html=json.parse.text['*'];
+    localStorage.setItem(RAW_KEY,html);
   }
 
-  const data = parseWiki(html);
+  const data=parseWiki(html);
+  window.data=data;
 
   function renderAll(d){
     renderSection('events','Events',d.events);
