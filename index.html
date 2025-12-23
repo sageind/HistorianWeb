@@ -14,6 +14,7 @@
       color: #f8fafc;
     }
 
+    /* NAVBAR */
     .navbar {
       background: #020617;
       box-shadow: 0 2px 10px rgba(0,0,0,.5);
@@ -35,6 +36,7 @@
     .brand-web {
       font-size: 0.85em;
       font-style: italic;
+      margin-left: 0;
       text-shadow: inset 0 1px 2px rgba(0,0,0,.6);
     }
 
@@ -52,6 +54,8 @@
       color: #94a3b8;
       border-radius: 12px;
       padding: 0.55rem 1.2rem;
+      font-weight: 500;
+      text-align: center;
     }
 
     .nav-pills .nav-link.active {
@@ -66,13 +70,38 @@
       padding: 0.35rem 0.75rem;
       border-radius: 10px;
       border: none;
+      white-space: nowrap;
       margin-right: 0.35rem;
     }
 
     .navbar-toggler {
       transform: scale(0.8);
+      margin-left: 0;
     }
 
+    /* MOBILE */
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        margin-top: 0.75rem;
+        padding: 1rem;
+        border-radius: 16px;
+        background: #020617;
+      }
+
+      .nav-pills {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+
+      .nav-pills .nav-item,
+      .nav-pills .nav-link {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    /* CARDS */
     .card {
       background: #020617;
       border-radius: 14px;
@@ -89,6 +118,12 @@
 
     input.search::placeholder {
       color: #9ca3af;
+    }
+
+    input.search:focus {
+      background: #0a0a0a;
+      color: #fff;
+      box-shadow: 0 0 0 .15rem rgba(37,99,235,.4);
     }
 
     .table td {
@@ -124,6 +159,7 @@
     <span class="brand-historian">Historian</span><span class="brand-web">Web</span>
   </a>
 
+  <!-- Always-visible date button -->
   <button class="date-btn ms-auto me-1" id="today-btn"></button>
 
   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -143,15 +179,11 @@
 </nav>
 
 <main class="container-fluid mt-3 px-3">
-  <div class="row">
-    <div class="col-12 col-lg-10 mx-auto">
-      <div class="tab-content">
-        <div id="events" class="tab-pane fade show active card p-3 mb-3"></div>
-        <div id="births" class="tab-pane fade card p-3 mb-3"></div>
-        <div id="deaths" class="tab-pane fade card p-3 mb-3"></div>
-        <div id="holidays" class="tab-pane fade card p-3 mb-3"></div>
-      </div>
-    </div>
+  <div class="tab-content">
+    <div id="events" class="tab-pane fade show active card p-3 mb-3"></div>
+    <div id="births" class="tab-pane fade card p-3 mb-3"></div>
+    <div id="deaths" class="tab-pane fade card p-3 mb-3"></div>
+    <div id="holidays" class="tab-pane fade card p-3 mb-3"></div>
   </div>
 </main>
 
@@ -162,12 +194,15 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+  const DATA_KEY = 'historian_daily_data';
   const RAW_KEY  = 'historian_raw_html';
   const FAV_KEY  = 'historian_favorites';
 
+  const isMobile = window.innerWidth <= 768;
+
   const today = new Date();
-  document.getElementById('today-btn').textContent =
-    today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  const dateText = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  document.getElementById('today-btn').textContent = dateText;
 
   let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
   let lastData = null;
@@ -178,7 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleFav(text) {
     const i = favorites.indexOf(text);
-    i === -1 ? favorites.push(text) : favorites.splice(i, 1);
+    if (i === -1) favorites.push(text);
+    else favorites.splice(i, 1);
     localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
     renderAll(lastData);
   }
@@ -191,18 +227,23 @@ document.addEventListener('DOMContentLoaded', () => {
         <table class="table table-borderless mb-0">
           <tbody>
             ${list.map(item => `
-              <tr><td>
-                <span class="heart" data-text="${item.replace(/"/g,'&quot;')}">
-                  ${isFav(item) ? '🩵' : '♡'}
-                </span>${item}
-              </td></tr>`).join('')}
+              <tr>
+                <td>
+                  <span class="heart" data-text="${item.replace(/"/g,'&quot;')}">
+                    ${isFav(item) ? '🩵' : '♡'}
+                  </span>
+                  ${item}
+                </td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
-      </div>`;
+      </div>
+    `;
 
-    el.querySelectorAll('.heart').forEach(h =>
-      h.onclick = () => toggleFav(h.dataset.text)
-    );
+    el.querySelectorAll('.heart').forEach(h => {
+      h.onclick = () => toggleFav(h.dataset.text);
+    });
   }
 
   function parseWiki(html) {
@@ -237,18 +278,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function init() {
-    let html = localStorage.getItem(RAW_KEY);
+    let html = null;
 
-    if (!html) {
+    if (isMobile && localStorage.getItem(RAW_KEY)) {
+      html = localStorage.getItem(RAW_KEY);
+    } else {
       const page = `${today.toLocaleString('default',{month:'long'})}_${today.getDate()}`;
       const url = `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${page}&origin=*`;
       const res = await fetch(url);
       const json = await res.json();
       html = json.parse.text['*'];
-      localStorage.setItem(RAW_KEY, html);
+      if (isMobile) localStorage.setItem(RAW_KEY, html);
     }
 
     lastData = parseWiki(html);
+
+    if (isMobile && (!lastData.events.length && !lastData.births.length)) {
+      const cachedHtml = localStorage.getItem(RAW_KEY);
+      if (cachedHtml) lastData = parseWiki(cachedHtml);
+    }
+
     renderAll(lastData);
   }
 
