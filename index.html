@@ -5,133 +5,98 @@
 <title>HistorianWeb</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
 <style>
-body {
+body{
+  margin:0;
   background:#0f172a;
   font-family:Helvetica,Arial,sans-serif;
   color:#f8fafc;
 }
 
-/* NAVBAR */
-.navbar {
+/* HEADER */
+header{
   background:#020617;
-  box-shadow:0 2px 10px rgba(0,0,0,.5);
-  padding:.6rem .75rem;
+  padding:.75rem;
+  display:flex;
+  align-items:center;
 }
 
-.navbar-brand {
-  text-decoration:none;
-  padding-left:.5rem;
-  white-space:nowrap;
-}
-
-.brand-historian {
+.brand{
   font-weight:700;
   letter-spacing:.3px;
-  text-shadow:inset 0 1px 2px rgba(0,0,0,.6);
 }
 
-.brand-web {
+.brand span{
   font-size:.85em;
   font-style:italic;
-  text-shadow:inset 0 1px 2px rgba(0,0,0,.6);
+  font-weight:400;
 }
 
-.navbar-center {
-  flex:1;
+.date{
+  margin-left:auto;
+  background:#07af61;
+  padding:.35rem .7rem;
+  border-radius:10px;
+  font-size:.85rem;
+}
+
+/* NAV */
+nav{
   display:flex;
-  justify-content:center;
+  overflow-x:auto;
+  background:#020617;
+  border-top:1px solid #1e293b;
 }
 
-.nav-pills {
-  gap:.5rem;
-}
-
-.nav-pills .nav-link {
+nav button{
+  flex:1;
+  background:none;
+  border:none;
   color:#94a3b8;
-  border-radius:12px;
-  padding:.55rem 1.2rem;
-  font-weight:500;
-  text-align:center;
+  padding:.7rem;
+  font-size:.9rem;
 }
 
-.nav-pills .nav-link.active {
+nav button.active{
   background:#2563eb;
   color:#fff;
 }
 
-.date-btn {
-  background:#07af61;
-  color:#fff;
-  font-size:.85rem;
-  padding:.35rem .75rem;
-  border-radius:10px;
-  border:none;
-  white-space:nowrap;
-  margin-right:.35rem;
+/* CONTENT */
+section{
+  display:none;
+  padding:1rem;
 }
 
-.navbar-toggler {
-  transform:scale(.8);
-}
-
-/* MOBILE */
-@media (max-width:991px){
-  .navbar-collapse{
-    margin-top:.75rem;
-    padding:1rem;
-    border-radius:16px;
-    background:#020617;
-  }
-  .nav-pills{
-    flex-direction:column;
-    width:100%;
-  }
-  .nav-pills .nav-link{
-    width:100%;
-  }
-}
-
-/* CARDS */
-.card {
-  background:#020617;
-  border-radius:14px;
-  box-shadow:0 10px 28px rgba(0,0,0,.55);
-  border:none;
-}
-
-input.search {
-  background:#0a0a0a;
-  color:#fff;
-  border-radius:10px;
-  border:1px solid #334155;
-}
-
-input.search::placeholder {
-  color:#9ca3af;
-}
-
-/* LIST ITEMS */
-.list-group-item {
-  background:#0a0a0a;
-  color:#f8fafc;
-  border:none;
-  border-bottom:1px solid rgba(37,99,235,.25);
-  padding:.65rem .6rem;
+section.active{
   display:block;
 }
 
-.heart {
+.search{
+  width:100%;
+  padding:.6rem;
+  margin-bottom:.6rem;
+  border-radius:10px;
+  border:1px solid #334155;
+  background:#0a0a0a;
+  color:#fff;
+}
+
+.item{
+  background:#0a0a0a;
+  padding:.6rem;
+  margin-bottom:.4rem;
+  border-radius:10px;
+  border-bottom:1px solid rgba(37,99,235,.25);
+}
+
+.heart{
   cursor:pointer;
-  font-size:1.15rem;
   margin-right:8px;
-  user-select:none;
 }
 
 /* FOOTER */
-.footer {
+footer{
   text-align:center;
   font-size:.7rem;
   color:#94a3b8;
@@ -142,80 +107,67 @@ input.search::placeholder {
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-  <a class="navbar-brand" href="https://github.com/sageind/HistorianWeb" target="_blank">
-    <span class="brand-historian">Historian</span><span class="brand-web">Web</span>
-  </a>
+<header>
+  <div class="brand">Historian<span>Web</span></div>
+  <div class="date" id="today"></div>
+</header>
 
-  <button class="date-btn ms-auto me-1" id="today-btn"></button>
-
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarContent">
-    <div class="navbar-center">
-      <ul class="navbar-nav nav nav-pills">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" data-bs-target="#events">Events</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#births">Births</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#deaths">Deaths</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" data-bs-target="#holidays">Holidays</a></li>
-      </ul>
-    </div>
-  </div>
+<nav>
+  <button class="active" data-tab="events">Events</button>
+  <button data-tab="births">Births</button>
+  <button data-tab="deaths">Deaths</button>
+  <button data-tab="holidays">Holidays</button>
 </nav>
 
-<main class="container-fluid mt-3 px-3">
-  <div class="tab-content">
-    <div id="events" class="tab-pane fade show active card p-3 mb-3"></div>
-    <div id="births" class="tab-pane fade card p-3 mb-3"></div>
-    <div id="deaths" class="tab-pane fade card p-3 mb-3"></div>
-    <div id="holidays" class="tab-pane fade card p-3 mb-3"></div>
-  </div>
-</main>
+<section id="events" class="active"></section>
+<section id="births"></section>
+<section id="deaths"></section>
+<section id="holidays"></section>
 
-<div class="footer">Sage India</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<footer>Sage India</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded',function(){
+(function(){
 
-const RAW_KEY='historian_raw_html';
-const FAV_KEY='historian_favorites';
-const isMobile=window.innerWidth<=768;
+var RAW_KEY='historian_raw_html';
+var FAV_KEY='historian_favorites';
 
-const today=new Date();
-document.getElementById('today-btn').textContent=
+var today=new Date();
+document.getElementById('today').textContent=
   today.toLocaleDateString(undefined,{month:'long',day:'numeric'});
 
 var favorites=JSON.parse(localStorage.getItem(FAV_KEY)||'[]');
 var lastData=null;
 
+/* NAV */
+document.querySelectorAll('nav button').forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  };
+});
+
 function isFav(t){return favorites.indexOf(t)!==-1;}
 
 function toggleFav(t){
   var i=favorites.indexOf(t);
-  if(i===-1) favorites.push(t);
-  else favorites.splice(i,1);
+  i===-1?favorites.push(t):favorites.splice(i,1);
   localStorage.setItem(FAV_KEY,JSON.stringify(favorites));
   renderAll(lastData);
 }
 
 function renderSection(id,list){
   var el=document.getElementById(id);
-  var html='<input class="form-control search mb-2" placeholder="Search '+id+'">';
-  html+='<div class="list-group">';
-
+  var html='<input class="search" placeholder="Search">';
   for(var i=0;i<list.length;i++){
-    var item=list[i];
-    html+='<div class="list-group-item" data-search="'+item.toLowerCase()+'">';
-    html+='<span class="heart" data-text="'+item.replace(/"/g,'&quot;')+'">';
-    html+=isFav(item)?'🩵':'♡';
-    html+='</span>'+item+'</div>';
+    var it=list[i];
+    html+='<div class="item" data-search="'+it.toLowerCase()+'">';
+    html+='<span class="heart" data-text="'+it.replace(/"/g,'&quot;')+'">';
+    html+=isFav(it)?'🩵':'♡';
+    html+='</span>'+it+'</div>';
   }
-
-  html+='</div>';
   el.innerHTML=html;
 
   el.querySelectorAll('.heart').forEach(function(h){
@@ -225,8 +177,8 @@ function renderSection(id,list){
   var input=el.querySelector('.search');
   input.onkeyup=function(){
     var v=this.value.toLowerCase();
-    el.querySelectorAll('.list-group-item').forEach(function(i){
-      i.style.display=i.getAttribute('data-search').indexOf(v)!==-1?'':'none';
+    el.querySelectorAll('.item').forEach(function(d){
+      d.style.display=d.dataset.search.indexOf(v)!==-1?'':'none';
     });
   };
 }
@@ -238,12 +190,12 @@ function parseWiki(html){
     var h2=doc.querySelector('h2#'+id);
     if(!h2)return out;
     var el=h2.parentElement.nextElementSibling;
-    while(el && !el.classList.contains('mw-heading2')){
+    while(el && el.tagName!=='H2'){
       if(el.tagName==='UL'){
         el.querySelectorAll('li').forEach(function(li){
           if(li.querySelector('ul'))return;
-          li.querySelectorAll('sup').forEach(function(s){s.remove();});
-          li.querySelectorAll('a').forEach(function(a){a.replaceWith(a.textContent);});
+          li.querySelectorAll('sup').forEach(s=>s.remove());
+          li.querySelectorAll('a').forEach(a=>a.replaceWith(a.textContent));
           out.push(li.textContent.trim());
         });
       }
@@ -251,7 +203,7 @@ function parseWiki(html){
     }
     return out;
   }
-  return {
+  return{
     events:extract('Events'),
     births:extract('Births'),
     deaths:extract('Deaths'),
@@ -260,14 +212,14 @@ function parseWiki(html){
 }
 
 async function init(){
-  var html=isMobile?localStorage.getItem(RAW_KEY):null;
+  var html=localStorage.getItem(RAW_KEY);
   if(!html){
     var page=today.toLocaleString('default',{month:'long'})+'_'+today.getDate();
     var url='https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page='+page+'&origin=*';
-    var res=await fetch(url);
-    var json=await res.json();
-    html=json.parse.text['*'];
-    if(isMobile)localStorage.setItem(RAW_KEY,html);
+    var r=await fetch(url);
+    var j=await r.json();
+    html=j.parse.text['*'];
+    localStorage.setItem(RAW_KEY,html);
   }
   lastData=parseWiki(html);
   renderAll(lastData);
@@ -281,7 +233,7 @@ function renderAll(d){
 }
 
 init();
-});
+})();
 </script>
 
 </body>
