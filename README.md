@@ -6,12 +6,8 @@ A single page web based version of the Historian application initially launched 
 
 Dec 2025
 
-✔ Offline support (Wikipedia data cached)
-
 ✔ Dark mode
 
-✔ Mobile rendering fixed, favoriting added, searchable tabs
-
-✔ One single HTML file
+✔ Favoriting added, searchable tabs
 
 You can access it [here](https://sageind.github.io/HistorianWeb/) , switch to Desktop View on Mobile browsers (need to fix this).
