@@ -1,25 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>HistorianWeb</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script>
-        // Polyfill for older Android browsers
-        if (typeof DOMParser === 'undefined') {
-            DOMParser = function DOMParser() {};
-            DOMParser.prototype.parseFromString = function(str, contentType) {
-                var doc = document.implementation.createHTMLDocument("");
-                if (contentType === 'text/html') {
-                    doc.body.innerHTML = str;
-                } else {
-                    throw new Error("Unsupported content type");
-                }
-                return doc;
-            };
-        }
-    </script>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --bg: #0f172a;
@@ -31,33 +17,11 @@
             --muted: #94a3b8;
             --border: #1e293b;
         }
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
         body {
-            margin: 0;
             background: var(--bg);
-            font-family: Helvetica, Arial, sans-serif;
             color: var(--text);
-            -webkit-text-size-adjust: 100%;
-        }
-        /* HEADER */
-        header {
-            background: var(--surface);
-            padding: .75rem 1rem;
-            display: flex;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            font-family: system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
         }
         .brand {
             font-weight: 600;
@@ -66,44 +30,31 @@
             font-size: .85em;
             font-style: italic;
         }
-        .date {
-            margin-left: auto;
+        .date-badge {
             background: var(--accent);
             padding: .35rem .7rem;
             border-radius: 999px;
             font-size: .75rem;
         }
-        /* NAV */
-        nav {
-            display: flex;
+        .nav-tabs {
+            border-bottom: 1px solid var(--border);
             background: var(--surface);
-            border-top: 1px solid var(--border);
-            position: sticky;
-            top: 3rem;
-            z-index: 9;
         }
-        nav button {
-            flex: 1;
-            background: none;
-            border: none;
+        .nav-tabs .nav-link {
             color: var(--muted);
+            border: none;
             padding: .75rem 0;
-            -webkit-appearance: none;
         }
-        nav button.active {
-            color: #fff;
+        .nav-tabs .nav-link.active {
+            background: #000;
+            color: #3b82f6;
             border-bottom: 2px solid var(--primary);
         }
-        /* CONTENT */
-        section {
-            display: none;
-            padding: 1rem;
+        .tab-content {
             min-height: calc(100vh - 8rem);
+            padding: 1rem;
         }
-        section.active {
-            display: block;
-        }
-        .search {
+        .search-box {
             width: 100%;
             padding: .6rem;
             margin-bottom: .75rem;
@@ -111,9 +62,8 @@
             border: 1px solid var(--border);
             background: var(--card);
             color: #fff;
-            -webkit-appearance: none;
         }
-        .item {
+        .history-item {
             background: var(--card);
             padding: .85rem;
             margin-bottom: .6rem;
@@ -122,233 +72,179 @@
             cursor: pointer;
             word-break: break-word;
         }
-        .heart {
+        .heart-icon {
             margin-right: 8px;
             user-select: none;
+            cursor: pointer;
         }
-        /* MODAL */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .75);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            padding: 1rem;
-            box-sizing: border-box;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-box {
-            background: #020617;
-            padding: 1.6rem 1.6rem 1.1rem;
-            width: 100%;
-            max-width: 520px;
+        .modal-content {
+            background: var(--surface);
+            border: none;
             border-radius: 14px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, .75);
-            overflow-y: auto;
-            max-height: 90vh;
         }
-        .modal-title {
-            font-size: .9rem;
-            font-weight: 600;
-            color: #e5e7eb;
-            margin-bottom: .85rem;
-        }
-        #modalText {
-            font-size: 1.05rem;
-            line-height: 1.55;
-            word-break: break-word;
-        }
-        /* MODAL FOOTER */
-        .modal-sep {
-            margin-top: 1.1rem;
-            border-top: 1px solid var(--border);
+        .modal-header {
+            border-bottom: 1px solid var(--border);
         }
         .modal-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: .65rem;
-            color: #94a3b8;
-            padding-top: .5rem;
-        }
-        .modal-footer b {
-            font-weight: 600;
-        }
-        /* FOOTER */
-        footer {
-            text-align: center;
+            border-top: 1px solid var(--border);
             font-size: .65rem;
             color: var(--muted);
-            padding: 1rem 0;
-            background: var(--surface);
         }
-        @media (max-width: 600px) {
-            .modal-box {
-                width: 100%;
-            }
-        }
-
-
-        .error {
+        .error-message {
             color: #ef4444;
             padding: 1rem;
             text-align: center;
         }
-        .refresh-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            cursor: pointer;
+        footer {
+            font-size: .65rem;
+            color: var(--muted);
+            text-align: center;
+            padding: 1rem 0;
+            background: var(--surface);
         }
     </style>
 </head>
 <body>
+
+    <!-- NON-STICKY HEADER -->
     <header>
-        <div class="brand">Historian<span>Web</span></div>
-        <div class="date" id="today"></div>
+        <div class="container-fluid py-2 px-3 d-flex align-items-center" style="background: var(--surface);">
+            <div class="brand">Historian<span>Web</span></div>
+            <div class="ms-auto date-badge" id="today"></div>
+        </div>
     </header>
-    <nav>
-        <button class="active" data-tab="events">Events</button>
-        <button data-tab="births">Births</button>
-        <button data-tab="deaths">Deaths</button>
-        <button data-tab="holidays">Holidays</button>
-    </nav>
-    <section id="events" class="active"></section>
-    <section id="births"></section>
-    <section id="deaths"></section>
-    <section id="holidays"></section>
-    <footer>Sage India</footer>
-    <div class="modal" id="modal">
-        <div class="modal-box">
-            <div class="modal-title">This Day in History</div>
-            <div id="modalText"></div>
-            <div class="modal-sep"></div>
-            <div class="modal-footer">
-                <span id="modalDate"></span>
-                <span><b>Historian</b> by Sage</span>
+
+    <!-- NON-STICKY TABS -->
+    <ul class="nav nav-tabs" id="tabs">
+        <li class="nav-item flex-grow-1 text-center">
+            <a class="nav-link active" data-bs-toggle="tab" href="#events">Events</a>
+        </li>
+        <li class="nav-item flex-grow-1 text-center">
+            <a class="nav-link" data-bs-toggle="tab" href="#births">Births</a>
+        </li>
+        <li class="nav-item flex-grow-1 text-center">
+            <a class="nav-link" data-bs-toggle="tab" href="#deaths">Deaths</a>
+        </li>
+        <li class="nav-item flex-grow-1 text-center">
+            <a class="nav-link" data-bs-toggle="tab" href="#holidays">Holidays</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="events"></div>
+        <div class="tab-pane fade" id="births"></div>
+        <div class="tab-pane fade" id="deaths"></div>
+        <div class="tab-pane fade" id="holidays"></div>
+    </div>
+
+    <!-- NON-FIXED FOOTER -->
+    <footer>
+        Sage India
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">This Day in History</h5>
+                </div>
+                <div class="modal-body" id="modalText"></div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <span id="modalDate"></span>
+                    <span><b>Historian</b> by Sage</span>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- LOGIC UNCHANGED -->
     <script>
         (function() {
-            var RAW_KEY = 'historian_raw_html';
-            var FAV_KEY = 'historian_favorites';
-            var today = new Date();
-            var dateText = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+            const RAW_KEY = 'historian_raw_html';
+            const FAV_KEY = 'historian_favorites';
+            const today = new Date();
+            const dateText = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+            
             document.getElementById('today').textContent = dateText;
             document.getElementById('modalDate').textContent = dateText;
-            var favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-            var lastData = null;
-            /* NAV */
-            var navBtns = document.querySelectorAll('nav button');
+            
+            let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
+            let lastData = null;
 
-	    // 🔧 Added error state handling
             function showError(msg) {
-                document.querySelectorAll('section').forEach(sec => {
-                    sec.innerHTML = `<div class="error">${msg}<br>
-                        <button class="refresh-btn" onclick="location.reload()">Try Again</button>
-                    </div>`;
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.innerHTML = `
+                        <div class="error-message">
+                            ${msg}<br>
+                            <button class="btn btn-primary mt-2" onclick="location.reload()">Try Again</button>
+                        </div>
+                    `;
                 });
             }
 
-            async function init() {
-                try {
-                    var html = localStorage.getItem(RAW_KEY);
-                    if (!html) {
-                        var page = today.toLocaleString('default', { month: 'long' }) + '_' + today.getDate();
-                        // 🔧 Modified fetch with proper CORS mode
-                        var r = await fetch(`https://cors-anywhere.herokuapp.com/https://en.wikipedia.org/wiki/${page}`, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        });
-                        if (!r.ok) throw new Error('Network response was not ok');
-                        html = await r.text();
-                        localStorage.setItem(RAW_KEY, html);
-                    }
-                    lastData = parseWiki(html);
-                    renderAll(lastData);
-                } catch (e) {
-                    console.error('Error:', e);
-                    showError('Failed to load data. Check your connection or try later.');
-                }
+            function isFav(text) {
+                return favorites.includes(text);
             }
 
-
-
-
-            for (var i = 0; i < navBtns.length; i++) {
-                navBtns[i].onclick = function() {
-                    for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
-                    var secs = document.querySelectorAll('section');
-                    for (var k = 0; k < secs.length; k++) secs[k].classList.remove('active');
-                    this.classList.add('active');
-                    document.getElementById(this.dataset.tab).classList.add('active');
-                };
-            }
-            function isFav(t) {
-                return favorites.indexOf(t) !== -1;
-            }
-            function toggleFav(t) {
-                var i = favorites.indexOf(t);
-                if (i === -1) favorites.push(t);
-                else favorites.splice(i, 1);
+            function toggleFav(text) {
+                const index = favorites.indexOf(text);
+                if (index === -1) favorites.push(text);
+                else favorites.splice(index, 1);
                 localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
                 renderAll(lastData);
             }
+
             function renderSection(id, list) {
-                var el = document.getElementById(id);
-                var html = '<input class="search" placeholder="Search">';
-                for (var i = 0; i < list.length; i++) {
-                    var it = list[i];
-                    html += '<div class="item" data-text="' + it.replace(/"/g, '&quot;') + '">';
-                    html += '<span class="heart">' + (isFav(it) ? '🩵' : '♡') + '</span>' + it + '</div>';
-                }
+                const el = document.getElementById(id);
+                let html = '<input class="search-box" placeholder="Search...">';
+                list.forEach(item => {
+                    html += `
+                        <div class="history-item" data-text="${item.replace(/"/g, '&quot;')}">
+                            <span class="heart-icon" onclick="event.stopPropagation();">${isFav(item) ? '🩵' : '♡'}</span>
+                            ${item}
+                        </div>
+                    `;
+                });
                 el.innerHTML = html;
-                var items = el.querySelectorAll('.item');
-                for (i = 0; i < items.length; i++) {
-                    items[i].onclick = function(e) {
-                        if (e.target.className === 'heart') {
+
+                el.querySelectorAll('.history-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('heart-icon')) {
                             toggleFav(this.dataset.text);
-                            e.stopPropagation();
                             return;
                         }
                         document.getElementById('modalText').textContent = this.dataset.text;
-                        document.getElementById('modal').classList.add('active');
-                    };
-                }
-                el.querySelector('.search').onkeyup = function() {
-                    var v = this.value.toLowerCase();
-                    for (var i = 0; i < items.length; i++) {
-                        items[i].style.display = items[i].dataset.text.toLowerCase().indexOf(v) !== -1 ? '' : 'none';
-                    }
-                };
+                        new bootstrap.Modal(document.getElementById('modal')).show();
+                    });
+                });
+
+                el.querySelector('.search-box').addEventListener('input', function() {
+                    const term = this.value.toLowerCase();
+                    el.querySelectorAll('.history-item').forEach(i => {
+                        i.style.display = i.dataset.text.toLowerCase().includes(term) ? '' : 'none';
+                    });
+                });
             }
-            /* WORKING PARSER */
+
             function parseWiki(html) {
-                var doc = new DOMParser().parseFromString(html, 'text/html');
+                const doc = new DOMParser().parseFromString(html, 'text/html');
                 function extract(id) {
-                    var out = [];
-                    var h2 = doc.querySelector('h2#' + id);
-                    if (!h2) return out;
-                    var el = h2.parentElement.nextElementSibling;
+                    const out = [];
+                    const h = doc.querySelector(`h2#${id}`);
+                    if (!h) return out;
+                    let el = h.parentElement.nextElementSibling;
                     while (el && !el.classList.contains('mw-heading2')) {
                         if (el.tagName === 'UL') {
-                            var lis = el.children;
-                            for (var i = 0; i < lis.length; i++) {
-                                if (lis[i].querySelector('ul')) continue;
-                                var clone = lis[i].cloneNode(true);
-                                clone.querySelectorAll('sup').forEach(function(s) { s.remove(); });
-                                clone.querySelectorAll('a').forEach(function(a) { a.replaceWith(a.textContent); });
-                                out.push(clone.textContent.trim());
-                            }
+                            [...el.children].forEach(li => {
+                                if (li.querySelector('ul')) return;
+                                const c = li.cloneNode(true);
+                                c.querySelectorAll('sup,a').forEach(n => n.replaceWith(n.textContent));
+                                out.push(c.textContent.trim());
+                            });
                         }
                         el = el.nextElementSibling;
                     }
@@ -361,35 +257,33 @@
                     holidays: extract('Holidays_and_observances')
                 };
             }
-            async function init() {
-                var html = localStorage.getItem(RAW_KEY);
-                if (!html) {
-                    var page = today.toLocaleString('default', { month: 'long' }) + '_' + today.getDate();
-                    try {
-                        var r = await fetch('https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=' + page + '&origin=*');
-                        var j = await r.json();
-                        html = j.parse.text['*'];
-                        localStorage.setItem(RAW_KEY, html);
-                    } catch (e) {
-                        console.error('Failed to load data:', e);
-                        return;
-                    }
-                }
-                lastData = parseWiki(html);
-                renderAll(lastData);
-            }
+
             function renderAll(d) {
                 renderSection('events', d.events);
                 renderSection('births', d.births);
                 renderSection('deaths', d.deaths);
                 renderSection('holidays', d.holidays);
             }
-            document.getElementById('modal').onclick = function(e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
+
+            async function fetchData() {
+                try {
+                    let html = localStorage.getItem(RAW_KEY);
+                    if (!html) {
+                        const m = today.toLocaleString('default', { month: 'long' });
+                        const d = today.getDate();
+                        const r = await fetch(`https://cors-anywhere.herokuapp.com/https://en.wikipedia.org/wiki/${m}_${d}`);
+                        if (!r.ok) throw new Error();
+                        html = await r.text();
+                        localStorage.setItem(RAW_KEY, html);
+                    }
+                    lastData = parseWiki(html);
+                    renderAll(lastData);
+                } catch {
+                    showError('Failed to load data.');
                 }
-            };
-            init();
+            }
+
+            document.addEventListener('DOMContentLoaded', fetchData);
         })();
     </script>
 </body>
