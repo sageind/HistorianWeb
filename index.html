@@ -191,6 +191,22 @@
                 width: 100%;
             }
         }
+
+
+        .error {
+            color: #ef4444;
+            padding: 1rem;
+            text-align: center;
+        }
+        .refresh-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -232,6 +248,42 @@
             var lastData = null;
             /* NAV */
             var navBtns = document.querySelectorAll('nav button');
+
+	    // 🔧 Added error state handling
+            function showError(msg) {
+                document.querySelectorAll('section').forEach(sec => {
+                    sec.innerHTML = `<div class="error">${msg}<br>
+                        <button class="refresh-btn" onclick="location.reload()">Try Again</button>
+                    </div>`;
+                });
+            }
+
+            async function init() {
+                try {
+                    var html = localStorage.getItem(RAW_KEY);
+                    if (!html) {
+                        var page = today.toLocaleString('default', { month: 'long' }) + '_' + today.getDate();
+                        // 🔧 Modified fetch with proper CORS mode
+                        var r = await fetch(`https://cors-anywhere.herokuapp.com/https://en.wikipedia.org/wiki/${page}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        if (!r.ok) throw new Error('Network response was not ok');
+                        html = await r.text();
+                        localStorage.setItem(RAW_KEY, html);
+                    }
+                    lastData = parseWiki(html);
+                    renderAll(lastData);
+                } catch (e) {
+                    console.error('Error:', e);
+                    showError('Failed to load data. Check your connection or try later.');
+                }
+            }
+
+
+
+
             for (var i = 0; i < navBtns.length; i++) {
                 navBtns[i].onclick = function() {
                     for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
