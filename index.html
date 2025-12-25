@@ -45,6 +45,10 @@ header{
   font-size:.75rem;
 }
 
+section.active {
+  display: flex;
+}
+
 /* NAV */
 nav{
   display:flex;
@@ -66,8 +70,8 @@ nav button.active{
 }
 
 /* CONTENT */
-section{display:flex;padding:1rem;}
-section.active{display:flex;}
+section{display:none;padding:1rem}
+section.active{display:block}
 
 .search{
   width:100%;
