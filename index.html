@@ -1,12 +1,11 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>HistorianWeb</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
             --bg: #0f172a;
@@ -18,161 +17,180 @@
             --muted: #94a3b8;
             --border: #1e293b;
         }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
+            font-family: system-ui, -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
-            font-family: system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
+            line-height: 1.5;
+        }
+        header {
+            background: var(--surface);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .brand {
             font-weight: 600;
         }
         .brand span {
-            font-size: .85em;
-            font-style: italic;
+            font-size: 0.85em;
+            opacity: 0.8;
         }
-        .date-badge {
+        .date {
+            margin-left: auto;
             background: var(--accent);
-            padding: .35rem .7rem;
-            border-radius: 999px;
-            font-size: .75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
         }
-        .nav-tabs {
-            border-bottom: 1px solid var(--border);
+        nav {
+            display: flex;
             background: var(--surface);
+            border-top: 1px solid var(--border);
+            position: sticky;
+            top: 3.5rem;
+            z-index: 90;
         }
-        .nav-tabs .nav-link {
-            color: var(--muted);
+        nav button {
+            flex: 1;
+            background: none;
             border: none;
-            padding: .75rem 0;
+            color: var(--muted);
+            padding: 0.8rem 0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .nav-tabs .nav-link.active {
-            background: #000;
-            color: #3b82f6;
+        nav button.active {
+            color: var(--text);
             border-bottom: 2px solid var(--primary);
         }
-        .tab-content {
-            min-height: calc(100vh - 8rem);
+        section {
+            display: none;
             padding: 1rem;
+            min-height: calc(100vh - 8rem);
         }
-        .search-box {
+        section.active {
+            display: block;
+        }
+        .search {
             width: 100%;
-            padding: .6rem;
-            margin-bottom: .75rem;
-            border-radius: 10px;
+            padding: 0.7rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--card);
-            color: #fff;
+            color: var(--text);
+            font-size: 1rem;
         }
-        .history-item {
+        .item {
             background: var(--card);
-            padding: .85rem;
-            margin-bottom: .6rem;
-            border-radius: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            word-break: break-word;
         }
-        .heart-icon {
-            margin-right: 8px;
+        .heart {
+            margin-right: 0.5rem;
+            cursor: pointer;
             user-select: none;
-            cursor: pointer;
         }
-        .modal-content {
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-box {
             background: var(--surface);
-            border: none;
-            border-radius: 14px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        .modal-header {
-            border-bottom: 1px solid var(--border);
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .modal-sep {
+            margin: 1rem 0;
+            border-top: 1px solid var(--border);
         }
         .modal-footer {
-            border-top: 1px solid var(--border);
-            font-size: .65rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
             color: var(--muted);
-        }
-        .error-message {
-            color: #ef4444;
-            padding: 1rem;
-            text-align: center;
         }
         footer {
-            font-size: .65rem;
-            color: var(--muted);
             text-align: center;
-            padding: 1rem 0;
+            padding: 1rem;
+            font-size: 0.7rem;
+            color: var(--muted);
             background: var(--surface);
         }
-        /* Mobile-specific */
-        @media (max-width: 767px) {
-            .mobile-table {
-                width: 100%;
-                border-collapse: collapse;
+
+        @media (max-width: 480px) {
+            nav button {
+                font-size: 0.8rem;
+                padding: 0.6rem 0;
             }
-            .mobile-table td {
-                padding: 8px;
-                border-bottom: 1px solid var(--border);
-            }
-            .mobile-table tr:last-child td {
-                border-bottom: none;
+            .modal-box {
+                padding: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="container-fluid py-2 px-3 d-flex align-items-center" style="background: var(--surface);">
-            <div class="brand">Historian<span>Web</span></div>
-            <div class="ms-auto date-badge" id="today"></div>
-        </div>
+        <div class="brand">Historian<span>Web</span></div>
+        <div class="date" id="today"></div>
     </header>
-
-    <ul class="nav nav-tabs" id="tabs">
-        <li class="nav-item flex-grow-1 text-center">
-            <a class="nav-link active" data-bs-toggle="tab" href="#events">Events</a>
-        </li>
-        <li class="nav-item flex-grow-1 text-center">
-            <a class="nav-link" data-bs-toggle="tab" href="#births">Births</a>
-        </li>
-        <li class="nav-item flex-grow-1 text-center">
-            <a class="nav-link" data-bs-toggle="tab" href="#deaths">Deaths</a>
-        </li>
-        <li class="nav-item flex-grow-1 text-center">
-            <a class="nav-link" data-bs-toggle="tab" href="#holidays">Holidays</a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="events"></div>
-        <div class="tab-pane fade" id="births"></div>
-        <div class="tab-pane fade" id="deaths"></div>
-        <div class="tab-pane fade" id="holidays"></div>
-    </div>
-
-    <footer>
-        Sage India
-    </footer>
-
-    <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">This Day in History</h5>
-                </div>
-                <div class="modal-body" id="modalText"></div>
-                <div class="modal-footer d-flex justify-content-between">
-                    <span id="modalDate"></span>
-                    <span><b>Historian</b> by Sage</span>
-                </div>
+    <nav>
+        <button class="active" data-tab="events">Events</button>
+        <button data-tab="births">Births</button>
+        <button data-tab="deaths">Deaths</button>
+        <button data-tab="holidays">Holidays</button>
+    </nav>
+    <section id="events" class="active"></section>
+    <section id="births"></section>
+    <section id="deaths"></section>
+    <section id="holidays"></section>
+    <footer>Historical data from Wikipedia</footer>
+    
+    <div class="modal" id="modal">
+        <div class="modal-box">
+            <div class="modal-title">This Day in History</div>
+            <div id="modalText"></div>
+            <div class="modal-sep"></div>
+            <div class="modal-footer">
+                <span id="modalDate"></span>
+                <span>HistorianWeb</span>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        (function() {
-            const RAW_KEY = 'historian_raw_html';
+        document.addEventListener('DOMContentLoaded', function() {
             const FAV_KEY = 'historian_favorites';
             const today = new Date();
             const dateText = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
@@ -181,183 +199,159 @@
             document.getElementById('modalDate').textContent = dateText;
             
             let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
-            let lastData = null;
+            let currentData = null;
 
-            function cleanText(text) {
-                // Remove content within square brackets
-                return text.replace(/\[.*?\]/g, '').trim();
-            }
-
-            function showError(msg) {
-                document.querySelectorAll('.tab-pane').forEach(pane => {
-                    pane.innerHTML = `
-                        <div class="error-message">
-                            ${msg}<br>
-                            <button class="btn btn-primary mt-2" onclick="location.reload()">Try Again</button>
-                        </div>
-                    `;
+            // Tab navigation
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+                    
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
                 });
-            }
+            });
 
-            function isFav(text) {
+            // Favorite handling
+            function isFavorite(text) {
                 return favorites.includes(text);
             }
 
-            function toggleFav(text) {
+            function toggleFavorite(text) {
                 const index = favorites.indexOf(text);
-                if (index === -1) favorites.push(text);
-                else favorites.splice(index, 1);
+                if (index === -1) {
+                    favorites.push(text);
+                } else {
+                    favorites.splice(index, 1);
+                }
                 localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-                renderAll(lastData);
+                renderAllSections(currentData);
             }
 
-            function renderMobileSection(id, list) {
-                const el = document.getElementById(id);
-                let html = '<input class="search-box" placeholder="Search...">';
-                html += '<table class="mobile-table">';
-                list.forEach((item, i) => {
+            function renderSection(sectionId, items) {
+                const section = document.getElementById(sectionId);
+                if (!section) return;
+                
+                let html = `<input class="search" placeholder="Search ${sectionId}...">`;
+                
+                items.forEach(item => {
                     html += `
-                        <tr class="history-item" data-text="${item.replace(/"/g, '&quot;')}">
-                            <td>
-                                <span class="heart-icon">${isFav(item) ? '🩵' : '♡'}</span>
-                                ${item}
-                            </td>
-                        </tr>
-                    `;
-                });
-                html += '</table>';
-                el.innerHTML = html;
-
-                el.querySelectorAll('.history-item').forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        if (e.target.classList.contains('heart-icon')) {
-                            e.stopPropagation();
-                            toggleFav(this.dataset.text);
-                            return;
-                        }
-                        document.getElementById('modalText').textContent = this.dataset.text;
-                        new bootstrap.Modal(document.getElementById('modal')).show();
-                    });
-                });
-
-                el.querySelector('.search-box').addEventListener('input', function() {
-                    const term = this.value.toLowerCase();
-                    el.querySelectorAll('tr').forEach(tr => {
-                        if (!tr.classList.contains('history-item')) return;
-                        tr.style.display = tr.dataset.text.toLowerCase().includes(term) ? '' : 'none';
-                    });
-                });
-            }
-
-            function renderDesktopSection(id, list) {
-                const el = document.getElementById(id);
-                let html = '<input class="search-box" placeholder="Search...">';
-                list.forEach(item => {
-                    html += `
-                        <div class="history-item" data-text="${item.replace(/"/g, '&quot;')}">
-                            <span class="heart-icon">${isFav(item) ? '🩵' : '♡'}</span>
+                        <div class="item" data-text="${item.replace(/"/g, '&quot;')}">
+                            <span class="heart">${isFavorite(item) ? '🩵' : '♡'}</span>
                             ${item}
                         </div>
                     `;
                 });
-                el.innerHTML = html;
-
-                el.querySelectorAll('.history-item').forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        if (e.target.classList.contains('heart-icon')) {
-                            e.stopPropagation();
-                            toggleFav(this.dataset.text);
+                
+                section.innerHTML = html;
+                
+                // Add event listeners
+                section.querySelectorAll('.item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('heart')) {
+                            toggleFavorite(item.dataset.text);
                             return;
                         }
-                        document.getElementById('modalText').textContent = this.dataset.text;
-                        new bootstrap.Modal(document.getElementById('modal')).show();
+                        
+                        document.getElementById('modalText').textContent = item.dataset.text;
+                        document.getElementById('modal').classList.add('active');
                     });
                 });
-
-                el.querySelector('.search-box').addEventListener('input', function() {
-                    const term = this.value.toLowerCase();
-                    el.querySelectorAll('.history-item').forEach(i => {
-                        i.style.display = i.dataset.text.toLowerCase().includes(term) ? '' : 'none';
+                
+                // Search functionality
+                section.querySelector('.search').addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    section.querySelectorAll('.item').forEach(item => {
+                        item.style.display = item.dataset.text.toLowerCase().includes(searchTerm) 
+                            ? 'block' 
+                            : 'none';
                     });
                 });
             }
 
-            function parseWiki(html) {
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                function extract(id) {
-                    const out = [];
-                    const h = doc.querySelector(`h2#${id}`);
-                    if (!h) return out;
-                    let el = h.parentElement.nextElementSibling;
-                    while (el && !el.classList.contains('mw-heading2')) {
-                        if (el.tagName === 'UL') {
-                            [...el.children].forEach(li => {
+            // Wikipedia parser
+            function parseWikiHTML(html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                function extractSection(sectionId) {
+                    const results = [];
+                    const heading = doc.querySelector(`h2#${sectionId}`);
+                    if (!heading) return results;
+                    
+                    let element = heading.parentElement.nextElementSibling;
+                    while (element && !element.classList.contains('mw-heading2')) {
+                        if (element.tagName === 'UL') {
+                            Array.from(element.children).forEach(li => {
                                 if (li.querySelector('ul')) return;
-                                const c = li.cloneNode(true);
-                                c.querySelectorAll('sup,a').forEach(n => n.replaceWith(n.textContent));
-                                out.push(cleanText(c.textContent));
+                                const clone = li.cloneNode(true);
+                                clone.querySelectorAll('sup').forEach(sup => sup.remove());
+                                clone.querySelectorAll('a').forEach(a => {
+                                    a.replaceWith(a.textContent);
+                                });
+                                results.push(clone.textContent.trim());
                             });
                         }
-                        el = el.nextElementSibling;
+                        element = element.nextElementSibling;
                     }
-                    return out;
+                    return results;
                 }
+                
                 return {
-                    events: extract('Events'),
-                    births: extract('Births'),
-                    deaths: extract('Deaths'),
-                    holidays: extract('Holidays_and_observances')
+                    events: extractSection('Events'),
+                    births: extractSection('Births'),
+                    deaths: extractSection('Deaths'),
+                    holidays: extractSection('Holidays_and_observances')
                 };
             }
 
-            function renderAll(d) {
-                const isMobile = window.innerWidth <= 767;
-                const renderer = isMobile ? renderMobileSection : renderDesktopSection;
-                renderer('events', d.events);
-                renderer('births', d.births);
-                renderer('deaths', d.deaths);
-                renderer('holidays', d.holidays);
-            }
-
-            async function fetchData() {
+            async function fetchHistoricalData() {
                 try {
-                    let html = localStorage.getItem(RAW_KEY);
-                    if (!html) {
-                        const m = today.toLocaleString('default', { month: 'long' });
-                        const d = today.getDate();
-                        // Remove CORS proxy for mobile testing
-                        const r = await fetch(`https://en.wikipedia.org/wiki/${m}_${d}`, {
-                            mode: 'no-cors'
-                        });
-                        if (!r.ok) throw new Error();
-                        html = await r.text();
-                        localStorage.setItem(RAW_KEY, html);
-                    }
-                    lastData = parseWiki(html);
-                    renderAll(lastData);
-                } catch {
-                    // Fallback for mobile
-                    const fallbackData = {
-                        events: ["1990 - Windows 3.0 released", "2008 - Bitcoin whitepaper published"],
-                        births: ["1925 - John Lennon (musician)", "1955 - Bill Gates (Microsoft founder)"],
-                        deaths: ["2011 - Steve Jobs (Apple founder)", "2020 - Kobe Bryant (basketball player)"],
-                        holidays: ["National Coffee Day", "World Vegan Day"]
-                    };
-                    lastData = {
-                        events: fallbackData.events.map(cleanText),
-                        births: fallbackData.births.map(cleanText),
-                        deaths: fallbackData.deaths.map(cleanText),
-                        holidays: fallbackData.holidays.map(cleanText)
-                    };
-                    renderAll(lastData);
+                    const month = today.toLocaleString('default', { month: 'long' });
+                    const day = today.getDate();
+                    const response = await fetch(
+                        `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&page=${month}_${day}&origin=*`
+                    );
+                    
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const data = await response.json();
+                    return data.parse.text['*'];
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    return null;
                 }
             }
 
-            document.addEventListener('DOMContentLoaded', fetchData);
-            window.addEventListener('resize', () => {
-                if (lastData) renderAll(lastData);
+            function renderAllSections(data) {
+                if (!data) return;
+                
+                renderSection('events', data.events);
+                renderSection('births', data.births);
+                renderSection('deaths', data.deaths);
+                renderSection('holidays', data.holidays);
+            }
+
+            // Modal closing
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('modal')) {
+                    document.getElementById('modal').classList.remove('active');
+                }
             });
-        })();
+
+            // Initialize
+            (async function() {
+                const html = await fetchHistoricalData();
+                if (html) {
+                    currentData = parseWikiHTML(html);
+                    renderAllSections(currentData);
+                } else {
+                    document.getElementById('events').innerHTML = `
+                        <p>Failed to load historical data. Please try again later.</p>
+                    `;
+                }
+            })();
+        });
     </script>
 </body>
 </html>
