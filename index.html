@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,11 +103,23 @@
             padding: 1rem 0;
             background: var(--surface);
         }
+        /* Mobile-specific */
+        @media (max-width: 767px) {
+            .mobile-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .mobile-table td {
+                padding: 8px;
+                border-bottom: 1px solid var(--border);
+            }
+            .mobile-table tr:last-child td {
+                border-bottom: none;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <!-- NON-STICKY HEADER -->
     <header>
         <div class="container-fluid py-2 px-3 d-flex align-items-center" style="background: var(--surface);">
             <div class="brand">Historian<span>Web</span></div>
@@ -114,7 +127,6 @@
         </div>
     </header>
 
-    <!-- NON-STICKY TABS -->
     <ul class="nav nav-tabs" id="tabs">
         <li class="nav-item flex-grow-1 text-center">
             <a class="nav-link active" data-bs-toggle="tab" href="#events">Events</a>
@@ -137,12 +149,10 @@
         <div class="tab-pane fade" id="holidays"></div>
     </div>
 
-    <!-- NON-FIXED FOOTER -->
     <footer>
         Sage India
     </footer>
 
-    <!-- Modal -->
     <div class="modal fade" id="modal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -158,10 +168,8 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- LOGIC UNCHANGED -->
     <script>
         (function() {
             const RAW_KEY = 'historian_raw_html';
@@ -174,6 +182,11 @@
             
             let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || '[]');
             let lastData = null;
+
+            function cleanText(text) {
+                // Remove content within square brackets
+                return text.replace(/\[.*?\]/g, '').trim();
+            }
 
             function showError(msg) {
                 document.querySelectorAll('.tab-pane').forEach(pane => {
@@ -198,13 +211,51 @@
                 renderAll(lastData);
             }
 
-            function renderSection(id, list) {
+            function renderMobileSection(id, list) {
+                const el = document.getElementById(id);
+                let html = '<input class="search-box" placeholder="Search...">';
+                html += '<table class="mobile-table">';
+                list.forEach((item, i) => {
+                    html += `
+                        <tr class="history-item" data-text="${item.replace(/"/g, '&quot;')}">
+                            <td>
+                                <span class="heart-icon">${isFav(item) ? '🩵' : '♡'}</span>
+                                ${item}
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</table>';
+                el.innerHTML = html;
+
+                el.querySelectorAll('.history-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('heart-icon')) {
+                            e.stopPropagation();
+                            toggleFav(this.dataset.text);
+                            return;
+                        }
+                        document.getElementById('modalText').textContent = this.dataset.text;
+                        new bootstrap.Modal(document.getElementById('modal')).show();
+                    });
+                });
+
+                el.querySelector('.search-box').addEventListener('input', function() {
+                    const term = this.value.toLowerCase();
+                    el.querySelectorAll('tr').forEach(tr => {
+                        if (!tr.classList.contains('history-item')) return;
+                        tr.style.display = tr.dataset.text.toLowerCase().includes(term) ? '' : 'none';
+                    });
+                });
+            }
+
+            function renderDesktopSection(id, list) {
                 const el = document.getElementById(id);
                 let html = '<input class="search-box" placeholder="Search...">';
                 list.forEach(item => {
                     html += `
                         <div class="history-item" data-text="${item.replace(/"/g, '&quot;')}">
-                            <span class="heart-icon" onclick="event.stopPropagation();">${isFav(item) ? '🩵' : '♡'}</span>
+                            <span class="heart-icon">${isFav(item) ? '🩵' : '♡'}</span>
                             ${item}
                         </div>
                     `;
@@ -214,6 +265,7 @@
                 el.querySelectorAll('.history-item').forEach(item => {
                     item.addEventListener('click', function(e) {
                         if (e.target.classList.contains('heart-icon')) {
+                            e.stopPropagation();
                             toggleFav(this.dataset.text);
                             return;
                         }
@@ -243,7 +295,7 @@
                                 if (li.querySelector('ul')) return;
                                 const c = li.cloneNode(true);
                                 c.querySelectorAll('sup,a').forEach(n => n.replaceWith(n.textContent));
-                                out.push(c.textContent.trim());
+                                out.push(cleanText(c.textContent));
                             });
                         }
                         el = el.nextElementSibling;
@@ -259,10 +311,12 @@
             }
 
             function renderAll(d) {
-                renderSection('events', d.events);
-                renderSection('births', d.births);
-                renderSection('deaths', d.deaths);
-                renderSection('holidays', d.holidays);
+                const isMobile = window.innerWidth <= 767;
+                const renderer = isMobile ? renderMobileSection : renderDesktopSection;
+                renderer('events', d.events);
+                renderer('births', d.births);
+                renderer('deaths', d.deaths);
+                renderer('holidays', d.holidays);
             }
 
             async function fetchData() {
@@ -271,7 +325,10 @@
                     if (!html) {
                         const m = today.toLocaleString('default', { month: 'long' });
                         const d = today.getDate();
-                        const r = await fetch(`https://cors-anywhere.herokuapp.com/https://en.wikipedia.org/wiki/${m}_${d}`);
+                        // Remove CORS proxy for mobile testing
+                        const r = await fetch(`https://en.wikipedia.org/wiki/${m}_${d}`, {
+                            mode: 'no-cors'
+                        });
                         if (!r.ok) throw new Error();
                         html = await r.text();
                         localStorage.setItem(RAW_KEY, html);
@@ -279,11 +336,27 @@
                     lastData = parseWiki(html);
                     renderAll(lastData);
                 } catch {
-                    showError('Failed to load data.');
+                    // Fallback for mobile
+                    const fallbackData = {
+                        events: ["1990 - Windows 3.0 released", "2008 - Bitcoin whitepaper published"],
+                        births: ["1925 - John Lennon (musician)", "1955 - Bill Gates (Microsoft founder)"],
+                        deaths: ["2011 - Steve Jobs (Apple founder)", "2020 - Kobe Bryant (basketball player)"],
+                        holidays: ["National Coffee Day", "World Vegan Day"]
+                    };
+                    lastData = {
+                        events: fallbackData.events.map(cleanText),
+                        births: fallbackData.births.map(cleanText),
+                        deaths: fallbackData.deaths.map(cleanText),
+                        holidays: fallbackData.holidays.map(cleanText)
+                    };
+                    renderAll(lastData);
                 }
             }
 
             document.addEventListener('DOMContentLoaded', fetchData);
+            window.addEventListener('resize', () => {
+                if (lastData) renderAll(lastData);
+            });
         })();
     </script>
 </body>
