@@ -14,4 +14,4 @@ Dec 2025
 
 ✔ One single HTML file
 
-You can access it [here](https://sageind.github.io/HistorianWeb/) , clear Browsing Data if the app does not display data.
+You can access it [here](https://sageind.github.io/HistorianWeb/) , switch to Desktop View on Mobile browsers (need to fix this).
